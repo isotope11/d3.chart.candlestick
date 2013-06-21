@@ -6,8 +6,7 @@ module.exports = function(grunt) {
     meta: {
       pkg: grunt.file.readJSON("package.json"),
       srcFiles: [
-        "src/template.js",
-        "src/template-extensions.js"
+        "src/candlestick.js",
       ]
     },
     watch: {
@@ -50,12 +49,12 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          "dist/d3.chart.template.js": "<%= meta.srcFiles %>"
+          "dist/d3.chart.candlestick.js": "<%= meta.srcFiles %>"
         }
       },
       release: {
         files: {
-          "d3.chart.template.js": "<%= meta.srcFiles %>"
+          "d3.chart.candlestick.js": "<%= meta.srcFiles %>"
         }
       }
     },
@@ -66,12 +65,12 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          "dist/d3.chart.template.min.js": "dist/d3.chart.template.js"
+          "dist/d3.chart.candlestick.min.js": "dist/d3.chart.candlestick.js"
         }
       },
       release: {
         files: {
-          "d3.chart.template.min.js": "dist/d3.chart.template.js"
+          "d3.chart.candlestick.min.js": "dist/d3.chart.candlestick.js"
         }
       }
     }

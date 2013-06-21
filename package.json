@@ -1,23 +1,18 @@
 {
-  "name": "d3.chart.template",
-  
-  "description": "A template for creating d3.chart based charts",
-
+  "name": "d3.chart.candlestick",
+  "description": "A candlestick chart for d3.chart",
   "version": "0.0.1",
-  
-  "author": "Your Name",
-  
+  "author": "Josh Adams <josh@isotope11.com>, Kent Russell <kent.russell@timelyportfolio.com>",
   "license": "MIT Expat",
-  
   "repository": {
     "type": "git",
-    "url": "git://github.com/yourOrgOrName/d3.chart.chart.git"
+    "url": "git://github.com/isotope11/d3.chart.candlestick.git"
   },
-  
   "keywords": [
     "d3.js",
     "visualization",
-    "svg"
+    "svg",
+    "candlestick"
   ],
 
   "d3.chart": {
