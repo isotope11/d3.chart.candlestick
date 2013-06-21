@@ -6,8 +6,8 @@
   var myCandlestickChart = d3.select("body")
     .append("svg").chart("CandlestickChart");
   myCandlestickChart.draw(dataSrc);
-  setInterval(function() {
-    dataSrc.fetch();
-    myCandlestickChart.draw(dataSrc);
-  }, 1500);
+  //setInterval(function() {
+    //dataSrc.fetch();
+    //myCandlestickChart.draw(dataSrc);
+  //}, 1500);
 }(window));
