@@ -1,3 +1,7 @@
+/*! d3.chart.candlestick - v0.0.1
+ *  License: MIT Expat
+ *  Date: 2013-06-21
+ */
 d3.chart("CandlestickChart", {
   initialize: function(options) {
     options = options || {};
