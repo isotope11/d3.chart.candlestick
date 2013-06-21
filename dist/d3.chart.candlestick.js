@@ -87,9 +87,6 @@ d3.chart("CandlestickChart", {
         .data(data, function(d) { return d.open_time; });
     }
 
-    function gridDataBind(data) {
-    }
-
     function insert() {
       return this.insert("rect", "line");
     }
@@ -255,10 +252,9 @@ d3.chart("CandlestickChart", {
 
   transform: function(data) {
     data = data.data;
-    this.x.domain([new Date("2013-06-15T00:42:00-05:00").getTime() / 1000, new Date("2013-06-15T02:42:00-05:00").getTime() / 1000])
+    this.x.domain([d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; })), d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }))])
       .range([0, this.width() - this.margin.right]);
     this.y.domain([d3.min(data.map(function(d){ return Number(d.low); })), d3.max(data.map(function(d){ return Number(d.high); }))]);
     return data;
   }
-
 });
