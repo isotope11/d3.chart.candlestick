@@ -1,0 +1,34 @@
+{
+  "name": "d3.chart.template",
+  
+  "description": "A template for creating d3.chart based charts",
+
+  "version": "0.0.1",
+  
+  "author": "Your Name",
+  
+  "license": "MIT Expat",
+  
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yourOrgOrName/d3.chart.chart.git"
+  },
+  
+  "keywords": [
+    "d3.js",
+    "visualization",
+    "svg"
+  ],
+
+  "d3.chart": {
+    "version" : "0.1.0"
+  },
+
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-concat": "~0.1.3",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-watch" : "~0.3.1"
+  }
+}
