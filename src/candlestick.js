@@ -13,7 +13,8 @@ d3.chart("CandlestickChart", {
 
     function onEnter() {
       var length = this.data().length;
-      this.attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
+      this.attr('class', 'candle')
+          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
             return chart.height() - chart.y(getStartingY(d));
           })
@@ -51,9 +52,9 @@ d3.chart("CandlestickChart", {
     }
 
     function onExitTrans() {
-      //this.duration(1000)
-          //.attr("x", function(d, i) { return chart.x(i - 1) - .5; })
-          //.remove();
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - .5; })
+          .remove();
     }
 
     function getStartingTime(data){
@@ -150,21 +151,72 @@ d3.chart("CandlestickChart", {
       }
     });
 
-    this.layer("wicks", this.base.append("g"), {
+    this.layer("wicks", this.base.append("g").attr("class", "wicks"), {
       dataBind: wickDataBind,
       insert: wickInsert
     });
 
-    this.layer("bars", this.base.append("g"), {
+    this.layer("bars", this.base.append("g").attr("class", "bars"), {
       dataBind: dataBind,
       insert: insert
     });
+
+    this.layer("info", this.base.append("g").attr("class", "info"), {});
+
 
     this.layer("bars").on("enter", onEnter);
     this.layer("bars").on("enter:transition", onEnterTrans);
     this.layer("bars").on("update:transition", onTrans);
     this.layer("bars").on("exit:transition", onExitTrans);
     this.layer("wicks").on("enter", onWickEnter);
+
+    var bisectDate = d3.bisector(function(d){
+      return new Date(d.open_time).getTime() / 1000;
+    }).left;
+
+    window.c = this;
+
+    this.base.on('mouseover', function(){
+      var x0 = chart.x.invert(d3.mouse(this)[0]);
+      var data = chart.layer('bars').selectAll('rect.candle').data();
+      var i = bisectDate(data, x0, 1);
+      var el = data[i];
+      if(el){
+        chart.layer("info")
+          .append("rect")
+          .attr("class", "info")
+          .attr("width", 200)
+          .attr("height", 200)
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("fill", "white");
+        var y = 20;
+        [el.open_time,
+         "Vol: " + el.volume,
+         "Close: " + el.close,
+         "Low: " + el.low,
+         "Open: " + el.open,
+         "High: " + el.high].forEach(function(d){
+           chart.layer("info")
+             .append('text')
+             .attr('class', 'info')
+             .text(d)
+             .attr('y', y);
+           y += 20;
+         });
+      }
+    });
+
+    this.base.on('mouseout', function(){
+      var bbox = chart.base[0][0].getBBox();
+      var outsideX = event.x < bbox.x || event.x > (bbox.x + bbox.width);
+      var outsideY = event.y < bbox.y || event.y > (bbox.y + bbox.height);
+      if(outsideY || outsideX){
+        chart.base.selectAll("rect.info").remove();
+        chart.base.selectAll("text.info").remove();
+      }
+    });
+
     this.width(options.width || 600);
     this.height(options.height || 500);
     this.margin = {
