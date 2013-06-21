@@ -115,6 +115,7 @@ d3.chart("CandlestickChart", {
     this.layer("wicks").on("enter", onWickEnter);
     this.width(options.width || 600);
     this.height(options.height || 500);
+
   },
 
   width: function(newWidth) {
@@ -140,7 +141,7 @@ d3.chart("CandlestickChart", {
   transform: function(data) {
     data = data.data;
     this.x.domain([new Date("2013-06-15T00:42:00-05:00").getTime() / 1000, new Date("2013-06-15T02:42:00-05:00").getTime() / 1000]);
-    this.y.domain([d3.min(data.map(function(d){ return Number(d.low); })) - 20, d3.max(data.map(function(d){ return Number(d.high); })) + 20]);
+    this.y.domain([d3.min(data.map(function(d){ return Number(d.low); })), d3.max(data.map(function(d){ return Number(d.high); }))]);
     return data;
   }
 
