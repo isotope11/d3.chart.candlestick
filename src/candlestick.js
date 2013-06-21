@@ -37,7 +37,7 @@ d3.chart("CandlestickChart", {
             return chart.height() - chart.y(Number(d.low));
           })
           .attr("width", 1)
-          .attr('stroke', 'black');
+          .attr('stroke', colorForCandle);
     }
 
     function onEnterTrans() {
@@ -82,11 +82,18 @@ d3.chart("CandlestickChart", {
         .data(data, function(d) { return d.open_time; });
     }
 
+    function gridDataBind(data) {
+    }
+
     function insert() {
       return this.insert("rect", "line");
     }
 
     function wickInsert() {
+      return this.insert("line");
+    }
+
+    function gridInsert() {
       return this.insert("line");
     }
 
@@ -97,6 +104,37 @@ d3.chart("CandlestickChart", {
     function colorForCandle(candle) {
       return Number(candle.open) > Number(candle.close) ? "red" : "green";
     }
+
+    this.layer("grid-x", this.base.append("g"), {
+      dataBind: function(data){
+        return this.selectAll("line.grid.grid-x")
+          .data(chart.x.ticks(10))
+      },
+      insert: function() {
+        return this.insert("line")
+            .attr('class', 'grid grid-x')
+            .attr("x1", chart.x)
+            .attr("x2", chart.x)
+            .attr("y1", 0)
+            .attr("y2", chart.height())
+            .attr("stroke", "#ccc");
+      }
+    });
+    this.layer("grid-y", this.base.append("g"), {
+      dataBind: function(data){
+        return this.selectAll("line.grid.grid-y")
+          .data(chart.y.ticks(10))
+      },
+      insert: function() {
+        return this.insert("line")
+            .attr('class', 'grid grid-y')
+            .attr("x1", 0)
+            .attr("x2", chart.width())
+            .attr("y1", chart.y)
+            .attr("y2", chart.y)
+            .attr("stroke", "#ccc");
+      }
+    });
 
     this.layer("wicks", this.base.append("g"), {
       dataBind: wickDataBind,
