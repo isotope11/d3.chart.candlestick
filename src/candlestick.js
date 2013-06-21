@@ -161,8 +161,12 @@ d3.chart("CandlestickChart", {
       insert: insert
     });
 
-    this.layer("info", this.base.append("g").attr("class", "info"), {});
-
+    this.layer("info", this.base.append("g").attr("class", "info"), {
+      dataBind: function() { return this.selectAll('rect').data([]); },
+      insert: function(){
+        return this.insert('text');
+      }
+    });
 
     this.layer("bars").on("enter", onEnter);
     this.layer("bars").on("enter:transition", onEnterTrans);
@@ -173,8 +177,6 @@ d3.chart("CandlestickChart", {
     var bisectDate = d3.bisector(function(d){
       return new Date(d.open_time).getTime() / 1000;
     }).left;
-
-    window.c = this;
 
     this.base.on('mouseover', function(){
       var x0 = chart.x.invert(d3.mouse(this)[0]);
