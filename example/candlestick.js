@@ -5,6 +5,10 @@
   var canvas = d3.select("body").append('svg');
   var myCandlestickChart = canvas.chart("CandlestickChart");
   myCandlestickChart.draw(dataSrc);
+  $('#change').on('click', function(){
+    dataSrc.add();
+    myCandlestickChart.draw(dataSrc);
+  });
   //setInterval(function() {
     //dataSrc.fetch();
     //myCandlestickChart.draw(dataSrc);
