@@ -281,6 +281,10 @@ d3.chart("CandlestickChart", {
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; });
     }
 
+    function onBarsUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
+    }
+
     function onBarsTrans() {
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
@@ -312,6 +316,7 @@ d3.chart("CandlestickChart", {
     });
 
     this.layer("bars").on("enter", onBarsEnter);
+    this.layer("bars").on("update", onBarsUpdate);
     this.layer("bars").on("enter:transition", onBarsEnterTrans);
     this.layer("bars").on("update:transition", onBarsTrans);
     this.layer("bars").on("exit:transition", onBarsExitTrans);

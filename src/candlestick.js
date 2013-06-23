@@ -278,7 +278,7 @@ d3.chart("CandlestickChart", {
     }
 
     function onBarsUpdate() {
-      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
     }
 
     function onBarsTrans() {
