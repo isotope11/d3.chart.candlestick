@@ -106,7 +106,7 @@ d3.chart("CandlestickChart", {
     }
 
     function getStartingY(candle) {
-      return Math.max(Number(candle.open), Number(candle.close));
+      return Math.max(Number(candle.open), Number(candle.close)) + (2*chart.strokeWidth);
     }
 
     function getHeight(y, candle) {
