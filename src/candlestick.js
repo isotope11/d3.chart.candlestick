@@ -180,32 +180,65 @@ d3.chart("CandlestickChart", {
     }).left;
 
     this.base.on('mouseover', function(){
+      chart.base.selectAll("rect.info").remove();
+      chart.base.selectAll("text.info").remove();
       var x0 = chart.x.invert(d3.mouse(this)[0]);
       var data = chart.layer('bars').selectAll('rect.candle').data();
       var i = bisectDate(data, x0, 1);
       var el = data[i];
+      var textBoxWidth = 125;
+      var textBoxHeight = 115;
       if(el){
+        var lineHeight = 15;
+        var textMargin = 6;
         chart.layer("info")
           .append("rect")
           .attr("class", "info")
-          .attr("width", 200)
-          .attr("height", 200)
+          .attr("width", textBoxWidth)
+          .attr("height", textBoxHeight)
           .attr("x", 0)
-          .attr("y", 0)
-          .attr("fill", "white");
-        var y = 20;
-        [el.open_time,
-         "Vol: " + el.volume,
-         "Close: " + el.close,
-         "Low: " + el.low,
-         "Open: " + el.open,
-         "High: " + el.high].forEach(function(d){
-           chart.layer("info")
-             .append('text')
-             .attr('class', 'info')
-             .text(d)
-             .attr('y', y);
-           y += 20;
+          .attr("y", 0);
+        var textBox = chart.layer("info")
+          .append("text")
+          .attr('class', 'info')
+          .attr('y', textMargin)
+          .attr('x', textMargin)
+          .attr('width', textBoxWidth - (2*textMargin))
+          .attr('height', textBoxHeight - (2*textMargin));
+        var y = lineHeight;
+        // Append data title
+        textBox.append('tspan')
+          .attr('x', textMargin)
+          .attr('y', y)
+          .text('Mt. Gox')
+          .attr('class', 'title');
+        y = y + lineHeight;
+        // Append date
+        var openDate = new Date(el.open_time);
+        textBox.append('tspan')
+          .attr('x', textMargin)
+          .attr('y', y)
+          .attr('class', 'date')
+          .text(openDate.toLocaleString());
+        y = y + lineHeight;
+        // Append 'titled' fields:
+        [
+          ["Open", el.open],
+          ["High", el.high],
+          ["Low", el.low],
+          ["Close", el.close],
+          ["Vol", el.volume]
+        ].forEach(function(d){
+           textBox.append('tspan')
+             .attr('class', 'titled-title')
+             .attr("x", textMargin)
+             .attr("y", y)
+             .text(d[0] + ':');
+           textBox.append('tspan')
+             .attr('class', 'titled-data')
+             .attr('dx', 0)
+             .text(' ' + d[1]);
+           y = y + lineHeight;
          });
       }
     });
