@@ -8,9 +8,9 @@ d3.chart("CandlestickChart", {
 
     this.y = d3.scale.linear();
 
-    this.strokeColor = options['strokeColor'] || "black";
-    this.fallColor = options['fallColor'] || "red";
-    this.riseColor = options['riseColor'] || "green";
+    this.strokeColor = options.strokeColor || "black";
+    this.fallColor = options.fallColor || "red";
+    this.riseColor = options.riseColor || "green";
     this.strokeWidth = 1;
 
     this.base
