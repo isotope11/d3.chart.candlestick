@@ -7,8 +7,7 @@ d3.chart("CandlestickChart", {
   },
   heightForCandle: function(y, candle) {
     var coreHeight = y(Math.min(Number(candle.open), Number(candle.close))) - y(Math.max(Number(candle.open), Number(candle.close)));
-    var heightWithStrokes = coreHeight - (2*this.strokeWidth);
-    return heightWithStrokes < 0 ? 0 : heightWithStrokes;
+    return coreHeight < 0 ? 0 : coreHeight;
   },
   getStartingY: function(candle){
     return Math.max(Number(candle.open), Number(candle.close));
@@ -136,10 +135,10 @@ d3.chart("CandlestickChart", {
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("y1", function(d) {
-            return chart.y(Number(d.high)) + (2*chart.strokeWidth);
+            return chart.y(Number(d.high));
           })
           .attr("y2", function(d) {
-            return chart.y(Number(d.low)) + (2*chart.strokeWidth);
+            return chart.y(Number(d.low));
           })
           .attr("width", 1);
     }
