@@ -461,15 +461,15 @@ d3.chart("VolumeChart", {
     var marginY = (maxY - minY) * 0.4;
     this.x.domain([minX, maxX])
       .range([0, this.width() - this.margin.right]);
-    this.y.domain([minY - marginY, maxY + marginY])
-      .range([this.height(), 0]);
+    this.y.domain([0, maxY])
+      .range([0, this.height()]);
     return data;
   },
 
   addBars: function(chart) {
     function onBarsEnter() {
       var length = this.data().length;
-      this.attr('class', 'candle')
+      this.attr('class', 'volume')
           .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)); })
           .attr("y", function(d) {
@@ -498,7 +498,7 @@ d3.chart("VolumeChart", {
           .remove();
     }
     function barsDataBind(data) {
-      return this.selectAll("rect.candle")
+      return this.selectAll("rect.volume")
         .data(data, function(d) { return d.open_time; });
     }
 
