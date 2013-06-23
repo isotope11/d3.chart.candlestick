@@ -13,24 +13,25 @@ d3.chart("CandlestickChart", {
 
     function onEnter() {
       var length = this.data().length;
+      var strokeWidth = 1;
       this.attr('class', 'candle')
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
             return chart.height() - chart.y(getStartingY(d));
           })
-          .attr("width", (chart.width() - chart.margin.right) / length)
+          .attr("width", ((chart.width() - chart.margin.right) / length) - (2*strokeWidth))
           .attr("height", function(d) {
-            return getHeight(chart.y, d);
+            return getHeight(chart.y, d) - (2*strokeWidth);
           })
           .attr("fill", colorForCandle)
-          .attr("stroke", 'black');
+          .attr("stroke", 'black')
+          .attr("stroke-width", strokeWidth);
     }
 
     function onEnterTrans() {
       var length = this[0].length;
       this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; })
-          .attr("width", (chart.width() - chart.margin.right) / length);
+          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; });
     }
 
     function onTrans() {
