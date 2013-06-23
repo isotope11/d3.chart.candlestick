@@ -139,10 +139,10 @@ d3.chart("CandlestickChart", {
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("y1", function(d) {
-            return chart.y(Number(d.high));
+            return chart.y(Number(d.high)) + (2*chart.strokeWidth);
           })
           .attr("y2", function(d) {
-            return chart.y(Number(d.low));
+            return chart.y(Number(d.low)) + (2*chart.strokeWidth);
           })
           .attr("width", 1);
     }
