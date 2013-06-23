@@ -2,16 +2,16 @@ d3.chart("CandlestickChart", {
   initialize: function(options) {
     options = options || {};
 
+    this.fallColor = options.fallColor || "red";
+    this.riseColor = options.riseColor || "green";
+    this.strokeWidth = 1;
+    this.candleMargin = 1;
+
     var chart = this;
 
     this.x = d3.scale.linear();
 
     this.y = d3.scale.linear();
-
-    this.strokeColor = options.strokeColor || "black";
-    this.fallColor = options.fallColor || "red";
-    this.riseColor = options.riseColor || "green";
-    this.strokeWidth = 1;
 
     this.base
       .attr("class", "chart");
@@ -19,16 +19,15 @@ d3.chart("CandlestickChart", {
     function onEnter() {
       var length = this.data().length;
       this.attr('class', 'candle')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
             return chart.height() - chart.y(getStartingY(d));
           })
-          .attr("width", ((chart.width() - chart.margin.right) / length) - (2*chart.strokeWidth))
+          .attr("width", function(d){ return widthForCandle(length) })
           .attr("height", function(d) {
             return getHeight(chart.y, d);
           })
-          .attr("fill", colorForCandle)
-          .attr("stroke", chart.strokeColor)
           .attr("stroke-width", chart.strokeWidth);
     }
 
@@ -52,8 +51,8 @@ d3.chart("CandlestickChart", {
     function onWickEnter() {
       var length = this.data().length;
       this.attr('class', 'wick')
-          .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + ((chart.width() - chart.margin.right) / length / 2); })
-          .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + ((chart.width() - chart.margin.left) / length / 2); })
+          .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
+          .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
           .attr("y1", function(d) {
             return chart.height() - chart.y(Number(d.high));
           })
@@ -82,6 +81,10 @@ d3.chart("CandlestickChart", {
       return heightWithStrokes < 0 ? 0 : heightWithStrokes;
     }
 
+    function widthForCandle(length) {
+      return ((chart.width() - chart.margin.right) / length) - (2*chart.strokeWidth) - (chart.candleMargin);
+    }
+
     function dataBind(data) {
       return this.selectAll("rect.candle")
         .data(data, function(d) { return d.open_time; });
@@ -108,6 +111,7 @@ d3.chart("CandlestickChart", {
       return Number(candle.open) > Number(candle.close) ? chart.riseColor : chart.fallColor;
     }
 
+    /*
     this.layer("grid-x", this.base.append("g"), {
       dataBind: function(data){
         return this.selectAll("line.grid.grid-x")
@@ -123,6 +127,7 @@ d3.chart("CandlestickChart", {
             .attr("stroke", "#ccc");
       }
     });
+    */
 
     this.layer("grid-y", this.base.append("g"), {
       dataBind: function(data){
@@ -136,14 +141,14 @@ d3.chart("CandlestickChart", {
             .attr("x2", chart.width() - chart.margin.right)
             .attr("y1", chart.y)
             .attr("y2", chart.y)
-            .attr("stroke", "#ccc");
+            .attr("stroke-width", 1);
       }
     });
 
     this.layer("grid-y-labels", this.base.append("g"), {
       dataBind: function(data){
         return this.selectAll("text.yLabel")
-          .data(chart.y.ticks(10));
+          .data(chart.y.ticks(5));
       },
       insert: function() {
         return this.insert("text")
@@ -157,10 +162,10 @@ d3.chart("CandlestickChart", {
       }
     });
 
-    //this.layer("wicks", this.base.append("g").attr("class", "wicks"), {
-      //dataBind: wickDataBind,
-      //insert: wickInsert
-    //});
+    this.layer("wicks", this.base.append("g").attr("class", "wicks"), {
+      dataBind: wickDataBind,
+      insert: wickInsert
+    });
 
     this.layer("bars", this.base.append("g").attr("class", "bars"), {
       dataBind: dataBind,
@@ -178,7 +183,7 @@ d3.chart("CandlestickChart", {
     this.layer("bars").on("enter:transition", onEnterTrans);
     this.layer("bars").on("update:transition", onTrans);
     this.layer("bars").on("exit:transition", onExitTrans);
-    //this.layer("wicks").on("enter", onWickEnter);
+    this.layer("wicks").on("enter", onWickEnter);
 
     var bisectDate = d3.bisector(function(d){
       return new Date(d.open_time).getTime() / 1000;
@@ -225,7 +230,7 @@ d3.chart("CandlestickChart", {
       }
     });
 
-    this.width(options.width || 600);
+    this.width(options.width || 900);
     this.height(options.height || 500);
     this.margin = {
       top: 0,
@@ -257,9 +262,14 @@ d3.chart("CandlestickChart", {
 
   transform: function(data) {
     data = data.data;
-    this.x.domain([d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; })), d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }))])
+    var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
+    var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
+    var minY = d3.min(data.map(function(d){ return Number(d.low); }));
+    var maxY = d3.max(data.map(function(d){ return Number(d.high); }));
+    var marginY = (maxY - minY) * 0.2;
+    this.x.domain([minX, maxX])
       .range([0, this.width() - this.margin.right]);
-    this.y.domain([d3.min(data.map(function(d){ return Number(d.low); })), d3.max(data.map(function(d){ return Number(d.high); }))])
+    this.y.domain([minY - marginY, maxY + marginY])
       .range([this.height(), 0]);
     return data;
   }
