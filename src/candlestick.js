@@ -60,7 +60,7 @@ d3.chart("CandlestickChart", {
           .remove();
     }
 
-    function onWickEnter() {
+    function onWicksEnter() {
       var length = this.data().length;
       this.attr('class', 'wick')
           .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
@@ -73,6 +73,29 @@ d3.chart("CandlestickChart", {
           })
           .attr("width", 1);
     }
+
+    function onWicksEnterTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
+          .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); });
+    }
+
+    function onWicksTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
+          .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); });
+    }
+
+    function onWicksExitTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
+          .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
+          .remove();
+    }
+
 
     function getStartingTime(data){
       return d3.min(data.map(function(d){ return new Date(d.open_time); }));
@@ -200,12 +223,17 @@ d3.chart("CandlestickChart", {
     });
 
     this.layer("open-lines").on("enter", onOpenLinesEnter);
+    this.layer("open-lines").on("enter:transition", onBarsEnterTrans);
+    this.layer("open-lines").on("update:transition", onBarsTrans);
     this.layer("open-lines").on("exit:transition", onOpenLinesExitTrans);
     this.layer("bars").on("enter", onBarsEnter);
     this.layer("bars").on("enter:transition", onBarsEnterTrans);
     this.layer("bars").on("update:transition", onBarsTrans);
     this.layer("bars").on("exit:transition", onBarsExitTrans);
-    this.layer("wicks").on("enter", onWickEnter);
+    this.layer("wicks").on("enter", onWicksEnter);
+    this.layer("wicks").on("enter:transition", onWicksEnterTrans);
+    this.layer("wicks").on("update:transition", onWicksTrans);
+    this.layer("wicks").on("exit:transition", onWicksExitTrans);
 
     var bisectDate = d3.bisector(function(d){
       return new Date(d.open_time).getTime() / 1000;
