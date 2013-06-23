@@ -11,7 +11,7 @@ d3.chart("CandlestickChart", {
     this.base
       .attr("class", "chart");
 
-    function onEnter() {
+    function onBarsEnter() {
       var length = this.data().length;
       this.attr('class', 'candle')
           .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
@@ -26,18 +26,35 @@ d3.chart("CandlestickChart", {
           .attr("stroke-width", chart.strokeWidth);
     }
 
-    function onEnterTrans() {
+    function onOpenLinesEnter() {
+      var length = this.data().length;
+      this.attr('class', 'open-line')
+          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
+          .attr("y", function(d) {
+            return chart.y(getStartingY(d));
+          })
+          .attr("width", function(d){ return widthForCandle(length); })
+          .attr("height", 1);
+    }
+
+    function onBarsEnterTrans() {
       var length = this[0].length;
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; });
     }
 
-    function onTrans() {
+    function onBarsTrans() {
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; });
     }
 
-    function onExitTrans() {
+    function onBarsExitTrans() {
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; })
+          .remove();
+    }
+
+    function onOpenLinesExitTrans() {
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)) - 0.5; })
           .remove();
@@ -79,8 +96,13 @@ d3.chart("CandlestickChart", {
       return ((chart.width() - chart.margin.right) / length) - (2*chart.strokeWidth) - (chart.candleMargin);
     }
 
-    function dataBind(data) {
+    function barsDataBind(data) {
       return this.selectAll("rect.candle")
+        .data(data, function(d) { return d.open_time; });
+    }
+
+    function openLinesDataBind(data) {
+      return this.selectAll("rect.open-line")
         .data(data, function(d) { return d.open_time; });
     }
 
@@ -89,7 +111,11 @@ d3.chart("CandlestickChart", {
         .data(data, function(d) { return d.open_time; });
     }
 
-    function insert() {
+    function openLinesInsert() {
+      return this.insert("rect");
+    }
+
+    function barsInsert() {
       return this.insert("rect");
     }
 
@@ -157,9 +183,13 @@ d3.chart("CandlestickChart", {
       insert: wickInsert
     });
 
+    this.layer("open-lines", this.base.append("g").attr("class", "open-lines"), {
+      dataBind: openLinesDataBind,
+      insert: openLinesInsert
+    });
     this.layer("bars", this.base.append("g").attr("class", "bars"), {
-      dataBind: dataBind,
-      insert: insert
+      dataBind: barsDataBind,
+      insert: barsInsert
     });
 
     this.layer("info", this.base.append("g").attr("class", "info"), {
@@ -169,10 +199,12 @@ d3.chart("CandlestickChart", {
       }
     });
 
-    this.layer("bars").on("enter", onEnter);
-    this.layer("bars").on("enter:transition", onEnterTrans);
-    this.layer("bars").on("update:transition", onTrans);
-    this.layer("bars").on("exit:transition", onExitTrans);
+    this.layer("open-lines").on("enter", onOpenLinesEnter);
+    this.layer("open-lines").on("exit:transition", onOpenLinesExitTrans);
+    this.layer("bars").on("enter", onBarsEnter);
+    this.layer("bars").on("enter:transition", onBarsEnterTrans);
+    this.layer("bars").on("update:transition", onBarsTrans);
+    this.layer("bars").on("exit:transition", onBarsExitTrans);
     this.layer("wicks").on("enter", onWickEnter);
 
     var bisectDate = d3.bisector(function(d){
