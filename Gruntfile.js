@@ -6,7 +6,8 @@ module.exports = function(grunt) {
     meta: {
       pkg: grunt.file.readJSON("package.json"),
       srcFiles: [
-        "src/candlestick.js"
+        "src/candlestick.js",
+        "src/volume.js"
       ]
     },
     watch: {

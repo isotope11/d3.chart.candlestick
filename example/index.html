@@ -8,6 +8,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 
     <script src="../src/candlestick.js"></script>
+    <script src="../src/volume.js"></script>
 
     <style type='text/css'>
       html{
@@ -19,6 +20,14 @@
         fill: green;
       }
       rect.candle.fall{
+        fill: red;
+      }
+
+      rect.volume{
+        fill: green;
+      }
+
+      rect.volume.fall{
         fill: red;
       }
 
@@ -87,8 +96,6 @@
     </style>
 	</head>
 	<body>
-		<div id="vis"></div>
-    <button id="change">Change data</button>
 		<script src="datasrc.js"></script>
 		<script src="candlestick.js"></script>
 	</body>
