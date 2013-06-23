@@ -125,30 +125,18 @@ d3.chart("CandlestickChart", {
           .attr("y2", function(d) { return chart.y(Number(d.close)); });
     }
 
-    function onLastTradeEnterTrans() {
-      var length = this[0].length;
-      this.duration(1000)
-          .attr("y1", function(d) { return chart.y(Number(d.close)); })
-          .attr("y2", function(d) { return chart.y(Number(d.close)); });
-    }
-
     function onLastTradeTrans() {
-      var length = this[0].length;
       this.duration(1000)
           .attr("y1", function(d) { return chart.y(Number(d.close)); })
           .attr("y2", function(d) { return chart.y(Number(d.close)); });
     }
 
     function onLastTradeExitTrans() {
-      var length = this[0].length;
-      this.duration(1000)
-          .attr("y1", function(d) { return chart.y(Number(d.close)); })
-          .attr("y2", function(d) { return chart.y(Number(d.close)); })
-          .remove();
+      this.remove();
     }
 
     function lastTradeDataBind(data) {
-      return this.selectAll("line.last-trade")
+      return this.selectAll("line.last-trade-price")
         .data([data[data.length - 1]], function(d) { return d.open_time; });
     }
 
@@ -161,7 +149,6 @@ d3.chart("CandlestickChart", {
       insert: lastTradeInsert
     });
     this.layer("last-trade").on("enter", onLastTradeEnter);
-    this.layer("last-trade").on("enter:transition", onLastTradeEnterTrans);
     this.layer("last-trade").on("update:transition", onLastTradeTrans);
     this.layer("last-trade").on("exit:transition", onLastTradeExitTrans);
   },
