@@ -21,11 +21,11 @@ d3.chart("CandlestickChart", {
           .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
-            return chart.y(getStartingY(d));
+            return chart.y(getStartingY(d)) + (2*chart.strokeWidth);
           })
           .attr("width", function(d){ return widthForCandle(length); })
           .attr("height", function(d) {
-            return getHeight(chart.y, d);
+            return getHeight(chart.y, d) - (2*chart.strokeWidth);
           })
           .attr("stroke-width", chart.strokeWidth);
     }
@@ -35,7 +35,7 @@ d3.chart("CandlestickChart", {
       this.attr('class', 'open-line')
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
-            return chart.y(getStartingY(d));
+            return chart.y(getStartingY(d)) + (2*chart.strokeWidth);
           })
           .attr("width", function(d){ return widthForCandle(length); })
           .attr("height", 1);
@@ -70,10 +70,10 @@ d3.chart("CandlestickChart", {
           .attr("x1", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(timestamp(d.open_time)) + (widthForCandle(length) / 2); })
           .attr("y1", function(d) {
-            return chart.y(Number(d.high));
+            return chart.y(Number(d.high)) + (2*chart.strokeWidth);
           })
           .attr("y2", function(d) {
-            return chart.y(Number(d.low));
+            return chart.y(Number(d.low)) + (2*chart.strokeWidth);
           })
           .attr("width", 1);
     }
@@ -110,7 +110,7 @@ d3.chart("CandlestickChart", {
     }
 
     function getStartingY(candle) {
-      return Math.max(Number(candle.open), Number(candle.close)) + (2*chart.strokeWidth);
+      return Math.max(Number(candle.open), Number(candle.close));
     }
 
     function getHeight(y, candle) {
