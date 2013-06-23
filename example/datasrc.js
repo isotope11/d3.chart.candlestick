@@ -803,14 +803,17 @@
   DataSrc.prototype.add = function() {
     // Add a minute to the last open time
     this.last_open_time = new Date(this.last_open_time.getTime() + (1 * 60000));
+    console.log(this.last_open_time);
     var data = {
       "volume": "0.42950446",
       "close": "99.40113",
       "low": "99.40113",
       "high": "99.40116",
       "open": "99.40114",
-      "open_time": this.last_open_time.toString()
+      "open_time": this.last_open_time.toISOString()
+      //"open_time": "2013-06-15T02:43:00-05:00"
     };
+    this.data.shift();
     this.data.push(data);
   };
 
