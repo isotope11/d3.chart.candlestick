@@ -819,7 +819,7 @@
 
   DataSrc.prototype.randomizeLastClosePrice = function() {
     var lastDatum = this.data[this.data.length-1];
-    lastDatum.close = String(Number(lastDatum.close) - (1 - Math.random() * 2));
+    lastDatum.close = String(Number(lastDatum.close) - (0.5 - Math.random() * 1));
   }
 
 }(this));
