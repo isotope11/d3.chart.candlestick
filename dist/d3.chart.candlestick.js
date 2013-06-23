@@ -30,6 +30,7 @@ d3.chart("CandlestickChart", {
     this.addWicks(chart);
     this.addOpenLines(chart);
     this.addBars(chart);
+    this.addLastTrade(chart);
     this.addInfo(chart);
 
     this.width(options.width || 900);
@@ -80,28 +81,10 @@ d3.chart("CandlestickChart", {
   },
 
   addGrid: function(chart) {
-    /*
-    this.layer("grid-x", this.base.append("g"), {
-      dataBind: function(data){
-        return this.selectAll("line.grid.grid-x")
-          .data(chart.x.ticks(10));
-      },
-      insert: function() {
-        return this.insert("line")
-            .attr('class', 'grid grid-x')
-            .attr("x1", chart.x)
-            .attr("x2", chart.x)
-            .attr("y1", 0)
-            .attr("y2", chart.height())
-            .attr("stroke", "#ccc");
-      }
-    });
-    */
-
     this.layer("grid-y", this.base.append("g"), {
       dataBind: function(data){
         return this.selectAll("line.grid.grid-y")
-          .data(chart.y.ticks(10));
+          .data(chart.y.ticks(5));
       },
       insert: function() {
         return this.insert("line")
@@ -131,6 +114,58 @@ d3.chart("CandlestickChart", {
       }
     });
   },
+
+  addLastTrade: function(chart) {
+    function onLastTradeEnter() {
+      this.attr('class', 'last-trade-price')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .attr("x1", 0)
+          .attr("x2", chart.width() - chart.margin.right)
+          .attr("y1", function(d) { return chart.y(Number(d.close)); })
+          .attr("y2", function(d) { return chart.y(Number(d.close)); });
+    }
+
+    function onLastTradeEnterTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("y1", function(d) { return chart.y(Number(d.close)); })
+          .attr("y2", function(d) { return chart.y(Number(d.close)); });
+    }
+
+    function onLastTradeTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("y1", function(d) { return chart.y(Number(d.close)); })
+          .attr("y2", function(d) { return chart.y(Number(d.close)); });
+    }
+
+    function onLastTradeExitTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("y1", function(d) { return chart.y(Number(d.close)); })
+          .attr("y2", function(d) { return chart.y(Number(d.close)); })
+          .remove();
+    }
+
+    function lastTradeDataBind(data) {
+      return this.selectAll("line.last-trade")
+        .data([data[data.length - 1]], function(d) { return d.open_time; });
+    }
+
+    function lastTradeInsert() {
+      return this.insert("line");
+    }
+
+    this.layer("last-trade", this.base.append("g").attr("class", "last-trade"), {
+      dataBind: lastTradeDataBind,
+      insert: lastTradeInsert
+    });
+    this.layer("last-trade").on("enter", onLastTradeEnter);
+    this.layer("last-trade").on("enter:transition", onLastTradeEnterTrans);
+    this.layer("last-trade").on("update:transition", onLastTradeTrans);
+    this.layer("last-trade").on("exit:transition", onLastTradeExitTrans);
+  },
+
 
   addWicks: function(chart){
     function onWicksEnter() {

@@ -9,8 +9,8 @@
   var myVolumeChart = volumeCanvas.chart("VolumeChart");
   myCandlestickChart.draw(dataSrc);
   myVolumeChart.draw(dataSrc);
-  //window.i = setInterval(function() {
-    //dataSrc.add();
-    //myCandlestickChart.draw(dataSrc);
-  //}, 1500);
+  window.i = setInterval(function() {
+    dataSrc.add();
+    myCandlestickChart.draw(dataSrc);
+  }, 1500);
 }(window));
