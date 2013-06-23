@@ -8,24 +8,28 @@ d3.chart("CandlestickChart", {
 
     this.y = d3.scale.linear();
 
+    this.strokeColor = options['strokeColor'] || "black";
+    this.fallColor = options['fallColor'] || "red";
+    this.riseColor = options['riseColor'] || "green";
+    this.strokeWidth = 1;
+
     this.base
       .attr("class", "chart");
 
     function onEnter() {
       var length = this.data().length;
-      var strokeWidth = 1;
       this.attr('class', 'candle')
           .attr("x", function(d, i) { return chart.x(timestamp(d.open_time)); })
           .attr("y", function(d) {
             return chart.height() - chart.y(getStartingY(d));
           })
-          .attr("width", ((chart.width() - chart.margin.right) / length) - (2*strokeWidth))
+          .attr("width", ((chart.width() - chart.margin.right) / length) - (2*chart.strokeWidth))
           .attr("height", function(d) {
-            return getHeight(chart.y, d) - (2*strokeWidth);
+            return getHeight(chart.y, d);
           })
           .attr("fill", colorForCandle)
-          .attr("stroke", 'black')
-          .attr("stroke-width", strokeWidth);
+          .attr("stroke", chart.strokeColor)
+          .attr("stroke-width", chart.strokeWidth);
     }
 
     function onEnterTrans() {
@@ -73,7 +77,9 @@ d3.chart("CandlestickChart", {
     }
 
     function getHeight(y, candle) {
-      return y(Math.min(Number(candle.open), Number(candle.close))) - y(Math.max(Number(candle.open), Number(candle.close)));
+      var coreHeight = y(Math.min(Number(candle.open), Number(candle.close))) - y(Math.max(Number(candle.open), Number(candle.close)));
+      var heightWithStrokes = coreHeight - (2*chart.strokeWidth);
+      return heightWithStrokes < 0 ? 0 : heightWithStrokes;
     }
 
     function dataBind(data) {
@@ -99,7 +105,7 @@ d3.chart("CandlestickChart", {
     }
 
     function colorForCandle(candle) {
-      return Number(candle.open) > Number(candle.close) ? "red" : "green";
+      return Number(candle.open) > Number(candle.close) ? chart.riseColor : chart.fallColor;
     }
 
     this.layer("grid-x", this.base.append("g"), {
