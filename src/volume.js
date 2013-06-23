@@ -92,7 +92,13 @@ d3.chart("VolumeChart", {
 
     function onBarsTrans() {
       this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; });
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
+          .attr("y", function(d) {
+            return chart.height() - chart.heightForBar(chart.y, d);
+          })
+          .attr("height", function(d) {
+            return chart.heightForBar(chart.y, d);
+          });
     }
 
     function onBarsExitTrans() {

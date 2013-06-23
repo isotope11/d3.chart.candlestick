@@ -817,4 +817,9 @@
     this.data.push(data);
   };
 
+  DataSrc.prototype.randomizeLastClosePrice = function() {
+    var lastDatum = this.data[this.data.length-1];
+    lastDatum.close = String(Number(lastDatum.close) - (1 - Math.random() * 2));
+  }
+
 }(this));

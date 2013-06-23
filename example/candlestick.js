@@ -10,7 +10,7 @@
   myCandlestickChart.draw(dataSrc);
   myVolumeChart.draw(dataSrc);
   window.i = setInterval(function() {
-    dataSrc.add();
+    dataSrc.randomizeLastClosePrice();
     myCandlestickChart.draw(dataSrc);
   }, 1500);
 }(window));
