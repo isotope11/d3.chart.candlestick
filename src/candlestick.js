@@ -295,15 +295,34 @@ d3.chart("CandlestickChart", {
       return new Date(d.open_time).getTime() / 1000;
     }).left;
 
-    this.base.on('mouseover', function(){
+    this.base.on('mousemove', function(){
       chart.base.selectAll("rect.info").remove();
       chart.base.selectAll("text.info").remove();
-      var x0 = chart.x.invert(d3.mouse(this)[0]);
+      chart.base.selectAll("line.info").remove();
+      var mouseX = d3.mouse(this)[0];
+      var mouseY = d3.mouse(this)[1];
+      var x0 = chart.x.invert(mouseX);
       var data = chart.layer('bars').selectAll('rect.candle').data();
       var i = bisectDate(data, x0, 1);
       var el = data[i];
       var textBoxWidth = 125;
       var textBoxHeight = 115;
+
+      // Add crosshairs
+      chart.layer("info")
+        .append("line")
+        .attr("class", "info")
+        .attr("x1", 0)
+        .attr("x2", chart.width())
+        .attr("y1", mouseY)
+        .attr("y2", mouseY);
+      chart.layer("info")
+        .append("line")
+        .attr("class", "info")
+        .attr("x1", mouseX)
+        .attr("x2", mouseX)
+        .attr("y1", 0)
+        .attr("y2", chart.height());
       if(el){
         var lineHeight = 15;
         var textMargin = 6;
@@ -366,10 +385,8 @@ d3.chart("CandlestickChart", {
       if(outsideY || outsideX){
         chart.base.selectAll("rect.info").remove();
         chart.base.selectAll("text.info").remove();
+        chart.base.selectAll("line.info").remove();
       }
     });
-
   }
-
-
 });
