@@ -3,7 +3,9 @@ d3.chart("CandlestickChart", {
     return new Date(dateString).getTime() / 1000;
   },
   widthForCandle: function(length) {
-    return ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
+    var width = ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
+    console.log(width);
+    return width;
   },
   heightForCandle: function(y, candle) {
     var coreHeight = y(Math.min(Number(candle.open), Number(candle.close))) - y(Math.max(Number(candle.open), Number(candle.close)));
@@ -33,7 +35,7 @@ d3.chart("CandlestickChart", {
     this.height(options.height || 300);
 
     this.strokeWidth = 1;
-    this.candleMargin = 1;
+    this.candleMargin = 3;
     this.margin = {
       top: 0,
       bottom: 0,
@@ -209,8 +211,8 @@ d3.chart("CandlestickChart", {
       this.attr('class', 'wick')
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
-          .attr("y1", function(d) { return chart.y(Number(d.high)) + (2*chart.strokeWidth); })
-          .attr("y2", function(d) { return chart.y(Number(d.low)) + (2*chart.strokeWidth); })
+          .attr("y1", function(d) { return chart.y(Number(d.high)); })
+          .attr("y2", function(d) { return chart.y(Number(d.low)); })
           .attr("width", 1);
     }
 
@@ -219,8 +221,8 @@ d3.chart("CandlestickChart", {
       this.duration(1000)
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
-          .attr("y1", function(d) { return chart.y(Number(d.high)) + (2*chart.strokeWidth); })
-          .attr("y2", function(d) { return chart.y(Number(d.low)) + (2*chart.strokeWidth); });
+          .attr("y1", function(d) { return chart.y(Number(d.high)); })
+          .attr("y2", function(d) { return chart.y(Number(d.low)); });
     }
 
     function onWicksTrans() {
@@ -228,8 +230,8 @@ d3.chart("CandlestickChart", {
       this.duration(1000)
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
-          .attr("y1", function(d) { return chart.y(Number(d.high)) + (2*chart.strokeWidth); })
-          .attr("y2", function(d) { return chart.y(Number(d.low)) + (2*chart.strokeWidth); });
+          .attr("y1", function(d) { return chart.y(Number(d.high)); })
+          .attr("y2", function(d) { return chart.y(Number(d.low)); });
     }
 
     function onWicksExitTrans() {
@@ -237,8 +239,8 @@ d3.chart("CandlestickChart", {
       this.duration(1000)
           .attr("x1", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
           .attr("x2", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + (chart.widthForCandle(length) / 2); })
-          .attr("y1", function(d) { return chart.y(Number(d.high)) + (2*chart.strokeWidth); })
-          .attr("y2", function(d) { return chart.y(Number(d.low)) + (2*chart.strokeWidth); })
+          .attr("y1", function(d) { return chart.y(Number(d.high)); })
+          .attr("y2", function(d) { return chart.y(Number(d.low)); })
           .remove();
     }
 
@@ -267,7 +269,7 @@ d3.chart("CandlestickChart", {
       this.attr('class', 'open-line')
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)); })
           .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) + (2*chart.strokeWidth);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
           })
           .attr("width", function(d){ return chart.widthForCandle(length); })
           .attr("height", 1);
@@ -289,10 +291,11 @@ d3.chart("CandlestickChart", {
     }
 
     function onOpenLinesTrans() {
+      var length = this[0].length;
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
           .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) + (2*chart.strokeWidth);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
           })
           .attr("width", function(d){ return chart.widthForCandle(length); });
     }
@@ -318,7 +321,7 @@ d3.chart("CandlestickChart", {
           .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)); })
           .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) + (2*chart.strokeWidth);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
           })
           .attr("width", function(d){ return chart.widthForCandle(length); })
           .attr("height", function(d) {
@@ -340,7 +343,7 @@ d3.chart("CandlestickChart", {
       this.duration(1000)
           .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
           .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) + (2*chart.strokeWidth);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
           })
           .attr("height", function(d) {
             return chart.heightForCandle(chart.y, d);
