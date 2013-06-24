@@ -34,7 +34,7 @@ d3.chart("CandlestickChart", {
     this.height(options.height || 300);
 
     this.strokeWidth = 1;
-    this.candleMargin = 3;
+    this.candleMargin = 1;
     this.margin = {
       top: 0,
       bottom: 0,

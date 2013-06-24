@@ -1,6 +1,6 @@
 /*! d3.chart.candlestick - v0.0.1
  *  License: MIT Expat
- *  Date: 2013-06-23
+ *  Date: 2013-06-24
  */
 d3.chart("CandlestickChart", {
   timestamp: function(dateString) {
@@ -38,7 +38,7 @@ d3.chart("CandlestickChart", {
     this.height(options.height || 300);
 
     this.strokeWidth = 1;
-    this.candleMargin = 3;
+    this.candleMargin = 1;
     this.margin = {
       top: 0,
       bottom: 0,
@@ -563,7 +563,7 @@ d3.chart("VolumeChart", {
     this.height(options.height || 100);
 
     this.strokeWidth = 1;
-    this.candleMargin = 3;
+    this.candleMargin = 1;
     this.margin = {
       top: 0,
       bottom: 0,

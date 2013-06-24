@@ -25,7 +25,7 @@ d3.chart("VolumeChart", {
     this.height(options.height || 100);
 
     this.strokeWidth = 1;
-    this.candleMargin = 3;
+    this.candleMargin = 1;
     this.margin = {
       top: 0,
       bottom: 0,
