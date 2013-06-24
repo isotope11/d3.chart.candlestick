@@ -4,7 +4,6 @@ d3.chart("CandlestickChart", {
   },
   widthForCandle: function(length) {
     var width = ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
-    console.log(width);
     return width;
   },
   heightForCandle: function(y, candle) {
