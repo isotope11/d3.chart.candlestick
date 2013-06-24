@@ -20,13 +20,12 @@ d3.chart("VolumeChart", {
       .attr("class", "volume chart");
 
     this.addBars(chart);
-    //this.addInfo(chart);
 
     this.width(options.width || 900);
     this.height(options.height || 100);
 
     this.strokeWidth = 1;
-    this.candleMargin = 1;
+    this.candleMargin = 3;
     this.margin = {
       top: 0,
       bottom: 0,
