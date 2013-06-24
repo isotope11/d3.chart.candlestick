@@ -125,6 +125,10 @@ d3.chart("CandlestickChart", {
           .attr("y2", function(d) { return chart.y(Number(d.close)); });
     }
 
+    function onLastTradeUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
+    }
+
     function onLastTradeTrans() {
       this.duration(1000)
           .attr("y1", function(d) { return chart.y(Number(d.close)); })
@@ -149,6 +153,7 @@ d3.chart("CandlestickChart", {
       insert: lastTradeInsert
     });
     this.layer("last-trade").on("enter", onLastTradeEnter);
+    this.layer("last-trade").on("update", onLastTradeUpdate);
     this.layer("last-trade").on("update:transition", onLastTradeTrans);
     this.layer("last-trade").on("exit:transition", onLastTradeExitTrans);
   },
