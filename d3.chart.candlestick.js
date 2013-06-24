@@ -165,6 +165,11 @@ d3.chart("CandlestickChart", {
   },
 
   addLastTrade: function(chart) {
+    this.addLastTradeLine(chart);
+    this.addLastTradeLabel(chart);
+  },
+
+  addLastTradeLine: function(chart) {
     function onLastTradeEnter() {
       this.attr('class', 'last-trade-price')
           .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
@@ -207,6 +212,50 @@ d3.chart("CandlestickChart", {
     this.layer("last-trade").on("exit:transition", onLastTradeExitTrans);
   },
 
+  addLastTradeLabel: function(chart) {
+    function onLastTradeEnter() {
+      this.attr('class', 'last-trade-label')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .attr("x", chart.width() - chart.margin.right)
+          .attr("y", function(d){ return chart.y(Number(d.close)); })
+          .attr('dy', 5)
+          .attr('dx', 20)
+          .attr('text-anchor', 'left')
+          .text(function(d){ return String(Number(d.close).toFixed(1)); });
+    }
+
+    function onLastTradeUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .text(function(d){ return String(Number(d.close).toFixed(1)); });
+    }
+
+    function onLastTradeTrans() {
+      this.duration(1000)
+          .attr("y", function(d){ return chart.y(Number(d.close)); });
+    }
+
+    function onLastTradeExitTrans() {
+      this.remove();
+    }
+
+    function lastTradeDataBind(data) {
+      return this.selectAll("text.last-trade-label")
+        .data([data[data.length - 1]], function(d) { return d.open_time; });
+    }
+
+    function lastTradeInsert() {
+      return this.insert("text");
+    }
+
+    this.layer("last-trade-label", this.base.append("g").attr("class", "last-trade-label"), {
+      dataBind: lastTradeDataBind,
+      insert: lastTradeInsert
+    });
+    this.layer("last-trade-label").on("enter", onLastTradeEnter);
+    this.layer("last-trade-label").on("update", onLastTradeUpdate);
+    this.layer("last-trade-label").on("update:transition", onLastTradeTrans);
+    this.layer("last-trade-label").on("exit:transition", onLastTradeExitTrans);
+  },
 
   addWicks: function(chart){
     function onWicksEnter() {
