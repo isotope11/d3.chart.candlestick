@@ -81,21 +81,71 @@ d3.chart("CandlestickChart", {
   },
 
   addGrid: function(chart) {
+    this.addGridY(chart);
+    this.addGridYLabels(chart);
+  },
+
+  addGridY: function(chart) {
+    function onGridYEnter() {
+      this.attr('class', 'grid grid-y')
+          .attr("x1", 0)
+          .attr("x2", chart.width() - chart.margin.right)
+          .attr("y1", chart.y)
+          .attr("y2", chart.y)
+          .attr("stroke-width", 1);
+    }
+
+    function onGridYTrans() {
+      this.duration(1000)
+          .attr("y1", chart.y)
+          .attr("y2", chart.y);
+    }
+
+    function onGridYExitTrans() {
+      this.duration(1000)
+          .remove();
+    }
+
     this.layer("grid-y", this.base.append("g"), {
       dataBind: function(data){
         return this.selectAll("line.grid.grid-y")
           .data(chart.y.ticks(5));
       },
       insert: function() {
-        return this.insert("line")
-            .attr('class', 'grid grid-y')
-            .attr("x1", 0)
-            .attr("x2", chart.width() - chart.margin.right)
-            .attr("y1", chart.y)
-            .attr("y2", chart.y)
-            .attr("stroke-width", 1);
+        return this.insert("line");
       }
     });
+    this.layer("grid-y").on("enter", onGridYEnter);
+    this.layer("grid-y").on("update:transition", onGridYTrans);
+    this.layer("grid-y").on("exit:transition", onGridYExitTrans);
+  },
+
+  addGridYLabels: function(chart) {
+    function onGridYLabelsEnter() {
+      this.attr('class', 'yLabel')
+          .attr("x", chart.width() - chart.margin.right)
+          .attr("y", chart.y)
+          .attr('dy', 5)
+          .attr('dx', 20)
+          .attr('text-anchor', 'left')
+          .text(function(d){ return String(d.toFixed(1)); });
+    }
+
+    function onGridYLabelsUpdate() {
+      this.text(function(d){ return String(d.toFixed(1)); });
+    }
+
+    function onGridYLabelsTrans() {
+      this.duration(1000)
+          .attr("x", chart.width() - chart.margin.right)
+          .attr("y", chart.y)
+          .attr('dy', 5)
+          .attr('dx', 20);
+    }
+
+    function onGridYLabelsExitTrans() {
+      this.duration(1000).remove();
+    }
 
     this.layer("grid-y-labels", this.base.append("g"), {
       dataBind: function(data){
@@ -103,16 +153,14 @@ d3.chart("CandlestickChart", {
           .data(chart.y.ticks(5));
       },
       insert: function() {
-        return this.insert("text")
-            .attr('class', 'yLabel')
-            .attr("x", chart.width() - chart.margin.right)
-            .attr("y", chart.y)
-            .attr('dy', 5)
-            .attr('dx', 20)
-            .attr('text-anchor', 'left')
-            .text(function(d){ return String(d.toFixed(1)); });
+        return this.insert("text");
       }
     });
+
+    this.layer("grid-y-labels").on("enter", onGridYLabelsEnter);
+    this.layer("grid-y-labels").on("update", onGridYLabelsUpdate);
+    this.layer("grid-y-labels").on("update:transition", onGridYLabelsTrans);
+    this.layer("grid-y-labels").on("exit:transition", onGridYLabelsExitTrans);
   },
 
   addLastTrade: function(chart) {
@@ -246,13 +294,15 @@ d3.chart("CandlestickChart", {
 
     function onOpenLinesTrans() {
       this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; });
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
+          .attr("y", function(d) {
+            return chart.y(chart.getStartingY(d)) + (2*chart.strokeWidth);
+          })
+          .attr("width", function(d){ return chart.widthForCandle(length); });
     }
 
     function onOpenLinesExitTrans() {
-      this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
-          .remove();
+      this.remove();
     }
 
     this.layer("open-lines", this.base.append("g").attr("class", "open-lines"), {
