@@ -7,6 +7,8 @@
     <script src="lib/d3.chart.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 
+    <script src="../src/baseCandlestick.js"></script>
+    <script src="../src/ohlc.js"></script>
     <script src="../src/candlestick.js"></script>
     <script src="../src/volume.js"></script>
 
@@ -15,12 +17,19 @@
         background: #21242A;
       }
 
+      a{
+        color: white;
+      }
+
       rect.candle{
         stroke: #ccc;
         fill: green;
       }
       rect.candle.fall{
         fill: red;
+      }
+      rect.ohlc{
+        fill: #ccc;
       }
 
       rect.volume{
@@ -115,6 +124,10 @@
     </style>
 	</head>
 	<body>
+    <a href='#' class='ohlc'>OHLC</a>
+    <a href='#' class='candlesticks'>Candlesticks</a>
+    <br />
+
 		<script src="datasrc.js"></script>
 		<script src="candlestick.js"></script>
 	</body>
