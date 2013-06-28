@@ -1,8 +1,8 @@
 /*! d3.chart.candlestick - v0.0.1
  *  License: MIT Expat
- *  Date: 2013-06-24
+ *  Date: 2013-06-28
  */
-d3.chart("CandlestickChart", {
+d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
     return new Date(dateString).getTime() / 1000;
   },
@@ -367,65 +367,9 @@ d3.chart("CandlestickChart", {
   },
 
   addBars: function(chart) {
-    function onBarsEnter() {
-      var length = this.data().length;
-      this.attr('class', 'candle')
-          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)); })
-          .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
-          })
-          .attr("width", function(d){ return chart.widthForCandle(length); })
-          .attr("height", function(d) {
-            return chart.heightForCandle(chart.y, d);
-          })
-          .attr("stroke-width", chart.strokeWidth);
-    }
-    function onBarsEnterTrans() {
-      var length = this[0].length;
-      this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; });
-    }
+  },
 
-    function onBarsUpdate() {
-      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
-    }
-
-    function onBarsTrans() {
-      this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
-          .attr("y", function(d) {
-            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
-          })
-          .attr("height", function(d) {
-            return chart.heightForCandle(chart.y, d);
-          });
-    }
-
-    function onBarsExitTrans() {
-      this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
-          .remove();
-    }
-    function barsDataBind(data) {
-      return this.selectAll("rect.candle")
-        .data(data, function(d) { return d.open_time; });
-    }
-
-    function barsInsert() {
-      return this.insert("rect");
-    }
-
-    this.layer("bars", this.base.append("g").attr("class", "bars"), {
-      dataBind: barsDataBind,
-      insert: barsInsert
-    });
-
-    this.layer("bars").on("enter", onBarsEnter);
-    this.layer("bars").on("update", onBarsUpdate);
-    this.layer("bars").on("enter:transition", onBarsEnterTrans);
-    this.layer("bars").on("update:transition", onBarsTrans);
-    this.layer("bars").on("exit:transition", onBarsExitTrans);
+  getBarData: function(chart){
   },
 
   addInfo: function(chart){
@@ -447,7 +391,7 @@ d3.chart("CandlestickChart", {
       var mouseX = d3.mouse(this)[0];
       var mouseY = d3.mouse(this)[1];
       var x0 = chart.x.invert(mouseX);
-      var data = chart.layer('bars').selectAll('rect.candle').data();
+      var data = chart.getBarData(chart);
       var i = bisectDate(data, x0, 1);
       var el = data[i];
       var textBoxWidth = 125;
@@ -533,6 +477,74 @@ d3.chart("CandlestickChart", {
         chart.base.selectAll("line.info").remove();
       }
     });
+  }
+});
+
+d3.chart("BaseCandlestickChart").extend("CandlestickChart", {
+  addBars: function(chart){
+    function onBarsEnter() {
+      var length = this.data().length;
+      this.attr('class', 'candle')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)); })
+          .attr("y", function(d) {
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
+          })
+          .attr("width", function(d){ return chart.widthForCandle(length); })
+          .attr("height", function(d) {
+            return chart.heightForCandle(chart.y, d);
+          })
+          .attr("stroke-width", chart.strokeWidth);
+    }
+    function onBarsEnterTrans() {
+      var length = this[0].length;
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; });
+    }
+
+    function onBarsUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
+    }
+
+    function onBarsTrans() {
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
+          .attr("y", function(d) {
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
+          })
+          .attr("height", function(d) {
+            return chart.heightForCandle(chart.y, d);
+          });
+    }
+
+    function onBarsExitTrans() {
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) - 0.5; })
+          .remove();
+    }
+    function barsDataBind(data) {
+      return this.selectAll("rect.candle")
+        .data(data, function(d) { return d.open_time; });
+    }
+
+    function barsInsert() {
+      return this.insert("rect");
+    }
+
+    this.layer("bars", this.base.append("g").attr("class", "bars"), {
+      dataBind: barsDataBind,
+      insert: barsInsert
+    });
+
+    this.layer("bars").on("enter", onBarsEnter);
+    this.layer("bars").on("update", onBarsUpdate);
+    this.layer("bars").on("enter:transition", onBarsEnterTrans);
+    this.layer("bars").on("update:transition", onBarsTrans);
+    this.layer("bars").on("exit:transition", onBarsExitTrans);
+  },
+
+  getBarData: function(chart){
+    return chart.layer('bars').selectAll('rect.candle').data();
   }
 });
 
