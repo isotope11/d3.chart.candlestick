@@ -453,13 +453,13 @@ d3.chart("BaseCandlestickChart", {
           .attr("y1", 0)
           .attr("y2", 0);
 
-        $('g.info').hide();
+        chart.layer('info').style('display', 'none');
     };
 
     addInfoBoxes();
 
     this.base.on('mousemove', function(){
-      $('g.info').show();
+      chart.layer('info').style('display', 'block');
       var mouseX = d3.mouse(this)[0];
       var mouseY = d3.mouse(this)[1];
       var x0 = chart.x.invert(mouseX);
@@ -502,7 +502,7 @@ d3.chart("BaseCandlestickChart", {
       var outsideX = event.x < bbox.x || event.x > (bbox.x + bbox.width);
       var outsideY = event.y < bbox.y || event.y > (bbox.y + bbox.height);
       if(outsideY || outsideX){
-        $('g.info').hide();
+        chart.layer('info').style('display', 'none');
       }
     });
   }
