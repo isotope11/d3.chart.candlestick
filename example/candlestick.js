@@ -13,9 +13,10 @@
     clearCharts();
 
     var candleCanvas = d3.select("body").append('svg');
-    d3.select("body").append('br');
+    $('br.clear').remove();
+    d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("CandlestickChart");
+    var myCandlestickChart = candleCanvas.chart("CandlestickChart", { exchange: 'BTC-E' });
     var myVolumeChart = volumeCanvas.chart("VolumeChart");
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);
@@ -29,9 +30,10 @@
     clearCharts();
 
     var candleCanvas = d3.select("body").append('svg');
-    d3.select("body").append('br');
+    $('br.clear').remove();
+    d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("OHLCChart");
+    var myCandlestickChart = candleCanvas.chart("OHLCChart", { exchange: 'Mt. Gox' });
     var myVolumeChart = volumeCanvas.chart("VolumeChart");
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);

@@ -17,6 +17,8 @@ d3.chart("BaseCandlestickChart", {
   initialize: function(options) {
     options = options || {};
 
+    this.exchange = (options.exchange || '');
+
     var chart = this;
     this.x = d3.scale.linear();
     this.y = d3.scale.linear();
@@ -380,68 +382,106 @@ d3.chart("BaseCandlestickChart", {
       return new Date(d.open_time).getTime() / 1000;
     }).left;
 
+    var addInfoBoxes = function(){
+      var textBoxWidth = 150;
+      var textBoxHeight = 115;
+      var lineHeight = 15;
+      var textMargin = 6;
+      chart.layer("info")
+        .append("rect")
+        .attr("class", "info")
+        .attr("width", textBoxWidth)
+        .attr("height", textBoxHeight)
+        .attr("x", 0)
+        .attr("y", 0);
+      var textBox = chart.layer("info")
+        .append("text")
+        .attr('class', 'info')
+        .attr('y', textMargin)
+        .attr('x', textMargin)
+        .attr('width', textBoxWidth - (2*textMargin))
+        .attr('height', textBoxHeight - (2*textMargin));
+      var y = lineHeight;
+      // Append data title
+      textBox.append('tspan')
+        .attr('x', textMargin)
+        .attr('y', y)
+        .text(chart.exchange)
+        .attr('class', 'title');
+      y = y + lineHeight;
+      // Append date
+      var openDate = '';
+      textBox.append('tspan')
+        .attr('x', textMargin)
+        .attr('y', y)
+        .attr('class', 'date')
+        .text(openDate.toLocaleString());
+      y = y + lineHeight;
+      // Append 'titled' fields:
+      [
+        ["Open", ''],
+        ["High", ''],
+        ["Low", ''],
+        ["Close", ''],
+        ["Vol", '']
+      ].forEach(function(d){
+         textBox.append('tspan')
+           .attr('class', 'titled-title ' + d[0].toLowerCase())
+           .attr("x", textMargin)
+           .attr("y", y)
+           .text(d[0] + ':');
+         textBox.append('tspan')
+           .attr('class', 'titled-data ' + d[0].toLowerCase())
+           .attr('dx', 0)
+           .text(' ' + d[1]);
+         y = y + lineHeight;
+       });
+
+        // Add crosshairs
+        chart.layer("info")
+          .append("line")
+          .attr("class", "info line-x")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", 0)
+          .attr("y2", 0);
+        chart.layer("info")
+          .append("line")
+          .attr("class", "info line-y")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", 0)
+          .attr("y2", 0);
+
+        $('g.info').hide();
+    };
+
+    addInfoBoxes();
+
     this.base.on('mousemove', function(){
-      chart.base.selectAll("rect.info").remove();
-      chart.base.selectAll("text.info").remove();
-      chart.base.selectAll("line.info").remove();
+      $('g.info').show();
       var mouseX = d3.mouse(this)[0];
       var mouseY = d3.mouse(this)[1];
       var x0 = chart.x.invert(mouseX);
       var data = chart.getBarData(chart);
       var i = bisectDate(data, x0, 1);
       var el = data[i];
-      var textBoxWidth = 125;
-      var textBoxHeight = 115;
 
       // Add crosshairs
       chart.layer("info")
-        .append("line")
-        .attr("class", "info")
-        .attr("x1", 0)
+        .select("line.line-x")
         .attr("x2", chart.width())
         .attr("y1", mouseY)
         .attr("y2", mouseY);
       chart.layer("info")
-        .append("line")
-        .attr("class", "info")
+        .select("line.line-y")
         .attr("x1", mouseX)
         .attr("x2", mouseX)
-        .attr("y1", 0)
         .attr("y2", chart.height());
+
       if(el){
-        var lineHeight = 15;
-        var textMargin = 6;
-        chart.layer("info")
-          .append("rect")
-          .attr("class", "info")
-          .attr("width", textBoxWidth)
-          .attr("height", textBoxHeight)
-          .attr("x", 0)
-          .attr("y", 0);
-        var textBox = chart.layer("info")
-          .append("text")
-          .attr('class', 'info')
-          .attr('y', textMargin)
-          .attr('x', textMargin)
-          .attr('width', textBoxWidth - (2*textMargin))
-          .attr('height', textBoxHeight - (2*textMargin));
-        var y = lineHeight;
-        // Append data title
-        textBox.append('tspan')
-          .attr('x', textMargin)
-          .attr('y', y)
-          .text('Mt. Gox')
-          .attr('class', 'title');
-        y = y + lineHeight;
-        // Append date
         var openDate = new Date(el.open_time);
-        textBox.append('tspan')
-          .attr('x', textMargin)
-          .attr('y', y)
-          .attr('class', 'date')
-          .text(openDate.toLocaleString());
-        y = y + lineHeight;
-        // Append 'titled' fields:
+        chart.layer('info').select('tspan.date').text(openDate.toLocaleString());
         [
           ["Open", el.open],
           ["High", el.high],
@@ -449,17 +489,11 @@ d3.chart("BaseCandlestickChart", {
           ["Close", el.close],
           ["Vol", el.volume]
         ].forEach(function(d){
-           textBox.append('tspan')
-             .attr('class', 'titled-title')
-             .attr("x", textMargin)
-             .attr("y", y)
-             .text(d[0] + ':');
-           textBox.append('tspan')
-             .attr('class', 'titled-data')
-             .attr('dx', 0)
-             .text(' ' + d[1]);
-           y = y + lineHeight;
-         });
+          chart.layer('info').select('tspan.titled-title.' + d[0].toLowerCase())
+            .text(d[0] + ':');
+          chart.layer('info').select('tspan.titled-data.' + d[0].toLowerCase())
+            .text(' ' + d[1]);
+        });
       }
     });
 
@@ -468,9 +502,7 @@ d3.chart("BaseCandlestickChart", {
       var outsideX = event.x < bbox.x || event.x > (bbox.x + bbox.width);
       var outsideY = event.y < bbox.y || event.y > (bbox.y + bbox.height);
       if(outsideY || outsideX){
-        chart.base.selectAll("rect.info").remove();
-        chart.base.selectAll("text.info").remove();
-        chart.base.selectAll("line.info").remove();
+        $('g.info').hide();
       }
     });
   }
