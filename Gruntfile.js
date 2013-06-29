@@ -8,6 +8,7 @@ module.exports = function(grunt) {
       srcFiles: [
         "src/baseCandlestick.js",
         "src/candlestick.js",
+        "src/ohlc.js",
         "src/volume.js"
       ]
     },
