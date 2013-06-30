@@ -3,7 +3,7 @@ d3.chart("BaseCandlestickChart", {
     return new Date(dateString).getTime() / 1000;
   },
   widthForCandle: function(length) {
-    allowedGaps = length/10;
+    var allowedGaps = length/10;
     var width = ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
     return width;
   },
@@ -95,7 +95,7 @@ d3.chart("BaseCandlestickChart", {
         }
       });
     }
-    return data
+    return data;
   },
 
   addGrid: function(chart) {
@@ -399,7 +399,7 @@ d3.chart("BaseCandlestickChart", {
 
     function emaDataBind(data){
       return this.selectAll("path.ema")
-        .data(data, function(d) { return d.open_time });
+        .data(data, function(d) { return d.open_time; });
     }
 
     function emaInsert() {

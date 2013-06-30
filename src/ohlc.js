@@ -136,5 +136,5 @@ d3.chart("BaseCandlestickChart").extend("OHLCChart", {
     this.layer("open-lines").on("enter:transition", onOpenLinesEnterTrans);
     this.layer("open-lines").on("update:transition", onOpenLinesTrans);
     this.layer("open-lines").on("exit:transition", onOpenLinesExitTrans);
-  },
+  }
 });

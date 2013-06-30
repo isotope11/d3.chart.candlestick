@@ -1,13 +1,14 @@
-/*! d3.chart.candlestick - v0.0.2
+/*! d3.chart.candlestick - v0.0.3
  *  License: MIT Expat
- *  Date: 2013-06-28
+ *  Date: 2013-06-30
  */
 d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
     return new Date(dateString).getTime() / 1000;
   },
   widthForCandle: function(length) {
-    var width = ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
+    var allowedGaps = length/10;
+    var width = ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
     return width;
   },
   heightForCandle: function(y, candle) {
@@ -22,6 +23,7 @@ d3.chart("BaseCandlestickChart", {
     options = options || {};
 
     this.exchange = (options.exchange || '');
+    this.ema = (options.ema || false); // Should we draw ema line?
 
     var chart = this;
     this.x = d3.scale.linear();
@@ -35,6 +37,7 @@ d3.chart("BaseCandlestickChart", {
     this.addBars(chart);
     this.addLastTrade(chart);
     this.addInfo(chart);
+    this.addEma(chart);
 
     this.width(options.width || 900);
     this.height(options.height || 300);
@@ -48,6 +51,7 @@ d3.chart("BaseCandlestickChart", {
       right: 60
     };
   },
+
 
   width: function(newWidth) {
     if (!arguments.length) {
@@ -69,8 +73,10 @@ d3.chart("BaseCandlestickChart", {
     return this;
   },
 
-  transform: function(data) {
-    data = data.data;
+  transform: function(_data) {
+    var data;
+    // If ema data was passed in, merge it into each data point
+    data = this.extractData(_data);
     var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
     var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
     var minY = d3.min(data.map(function(d){ return Number(d.low); }));
@@ -80,6 +86,19 @@ d3.chart("BaseCandlestickChart", {
       .range([0, this.width() - this.margin.right]);
     this.y.domain([minY - marginY, maxY + marginY])
       .range([this.height(), 0]);
+    return data;
+  },
+
+  extractData: function(_data){
+    var data;
+    data = _data.data;
+    if(_data.ema){
+      data.forEach(function(datum, i){
+        if(_data.ema[i]){
+          datum.ema = _data.ema[i].price;
+        }
+      });
+    }
     return data;
   },
 
@@ -315,6 +334,90 @@ d3.chart("BaseCandlestickChart", {
     this.layer("wicks").on("enter:transition", onWicksEnterTrans);
     this.layer("wicks").on("update:transition", onWicksTrans);
     this.layer("wicks").on("exit:transition", onWicksExitTrans);
+  },
+
+  addEma: function(chart) {
+    var line = d3.svg.line()
+      .x(function(d, i){
+        return chart.x(chart.timestamp(d.open_time));
+      })
+      .y(function(d, i){
+        if(d.ema){
+          return chart.y(d.ema);
+        } else {
+          return chart.y(0);
+        }
+      });
+
+    function onEmaEnter(){
+      var lastDatum, oldLastDatum;
+      this.attr('class', 'ema')
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaEnterTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaExitTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        }).remove();
+    }
+
+    function emaDataBind(data){
+      return this.selectAll("path.ema")
+        .data(data, function(d) { return d.open_time; });
+    }
+
+    function emaInsert() {
+      return this.insert('path');
+    }
+
+    this.layer("ema", chart.base.append("g").attr("class", "ema"), {
+      dataBind: emaDataBind,
+      insert: emaInsert
+    });
+    this.layer("ema").on("enter", onEmaEnter);
+    this.layer("ema").on("enter:transition", onEmaEnterTrans);
+    this.layer("ema").on("update:transition", onEmaTrans);
+    this.layer("ema").on("exit:transition", onEmaExitTrans);
   },
 
   addOpenLines: function(chart) {
@@ -580,12 +683,154 @@ d3.chart("BaseCandlestickChart").extend("CandlestickChart", {
   }
 });
 
+d3.chart("BaseCandlestickChart").extend("OHLCChart", {
+  // The open line will take care of the open bit, and the close line will be taken care of as if it were the bar.
+  addBars: function(chart){
+    function xPosition(d, lineWidth) {
+      if(Number(d.open) > Number(d.close)){
+        return chart.x(chart.timestamp(d.open_time)) + lineWidth;
+      } else {
+        return chart.x(chart.timestamp(d.open_time));
+      }
+    }
+
+    function onBarsEnter() {
+      var length = this.data().length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.attr('class', 'ohlc')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); })
+          .attr("y", function(d) {
+            var height = chart.heightForCandle(chart.y, d);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth) + height;
+          })
+          .attr("width", lineWidth)
+          .attr("height", 1);
+    }
+    function onBarsEnterTrans() {
+      var length = this[0].length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.duration(1000)
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); });
+    }
+
+    function onBarsUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
+    }
+
+    function onBarsTrans() {
+      var length = this[0].length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.duration(1000)
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); })
+          .attr("y", function(d) {
+            var height = chart.heightForCandle(chart.y, d);
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth) + height;
+          });
+    }
+
+    function onBarsExitTrans() {
+      var length = this[0].length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.duration(1000)
+          .attr("x", function(d, i) { return chart.x(chart.timestamp(d.open_time)) + lineWidth; })
+          .remove();
+    }
+    function barsDataBind(data) {
+      return this.selectAll("rect.ohlc")
+        .data(data, function(d) { return d.open_time; });
+    }
+
+    function barsInsert() {
+      return this.insert("rect");
+    }
+
+    this.layer("bars", this.base.append("g").attr("class", "bars"), {
+      dataBind: barsDataBind,
+      insert: barsInsert
+    });
+
+    this.layer("bars").on("enter", onBarsEnter);
+    this.layer("bars").on("update", onBarsUpdate);
+    this.layer("bars").on("enter:transition", onBarsEnterTrans);
+    this.layer("bars").on("update:transition", onBarsTrans);
+    this.layer("bars").on("exit:transition", onBarsExitTrans);
+  },
+
+  getBarData: function(chart){
+    return chart.layer('bars').selectAll('rect.ohlc').data();
+  },
+
+  addOpenLines: function(chart) {
+    function xPosition(d, lineWidth) {
+      if(Number(d.open) > Number(d.close)){
+        return chart.x(chart.timestamp(d.open_time));
+      } else {
+        return chart.x(chart.timestamp(d.open_time)) + lineWidth;
+      }
+    }
+
+    function onOpenLinesEnter() {
+      var length = this.data().length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.attr('class', 'open-line')
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); })
+          .attr("y", function(d) {
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
+          })
+          .attr("width", lineWidth)
+          .attr("height", 1);
+    }
+
+    function openLinesDataBind(data) {
+      return this.selectAll("rect.open-line")
+        .data(data, function(d) { return d.open_time; });
+    }
+
+    function openLinesInsert() {
+      return this.insert("rect");
+    }
+
+    function onOpenLinesEnterTrans() {
+      var length = this[0].length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.duration(1000)
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); });
+    }
+
+    function onOpenLinesTrans() {
+      var length = this[0].length;
+      var lineWidth = chart.widthForCandle(length) / 2;
+      this.duration(1000)
+          .attr("x", function(d, i) { return xPosition(d, lineWidth); })
+          .attr("y", function(d) {
+            return chart.y(chart.getStartingY(d)) - (chart.strokeWidth);
+          })
+          .attr("width", function(d){ return lineWidth; });
+    }
+
+    function onOpenLinesExitTrans() {
+      this.remove();
+    }
+
+    this.layer("open-lines", this.base.append("g").attr("class", "open-lines"), {
+      dataBind: openLinesDataBind,
+      insert: openLinesInsert
+    });
+    this.layer("open-lines").on("enter", onOpenLinesEnter);
+    this.layer("open-lines").on("enter:transition", onOpenLinesEnterTrans);
+    this.layer("open-lines").on("update:transition", onOpenLinesTrans);
+    this.layer("open-lines").on("exit:transition", onOpenLinesExitTrans);
+  }
+});
+
 d3.chart("VolumeChart", {
   timestamp: function(dateString) {
     return new Date(dateString).getTime() / 1000;
   },
   widthForBar: function(length) {
-    return ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
+    var allowedGaps = length/10;
+    return ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
   },
   heightForBar: function(y, candle) {
     var coreHeight = y(candle.volume);
