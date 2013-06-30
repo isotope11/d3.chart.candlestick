@@ -11,6 +11,7 @@
   var DataSrc = window.DataSrc = function() {
     var self = this;
     this.last_open_time = new Date("2013-06-15T02:42:00-05:00");
+    this.ema = (new EMAData()).data;
     this.data = [
           {
             "volume": "10.0",

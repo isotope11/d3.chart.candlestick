@@ -3,7 +3,8 @@ d3.chart("BaseCandlestickChart", {
     return new Date(dateString).getTime() / 1000;
   },
   widthForCandle: function(length) {
-    var width = ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
+    allowedGaps = length/10;
+    var width = ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
     return width;
   },
   heightForCandle: function(y, candle) {
@@ -18,6 +19,7 @@ d3.chart("BaseCandlestickChart", {
     options = options || {};
 
     this.exchange = (options.exchange || '');
+    this.ema = (options.ema || false); // Should we draw ema line?
 
     var chart = this;
     this.x = d3.scale.linear();
@@ -31,6 +33,7 @@ d3.chart("BaseCandlestickChart", {
     this.addBars(chart);
     this.addLastTrade(chart);
     this.addInfo(chart);
+    this.addEma(chart);
 
     this.width(options.width || 900);
     this.height(options.height || 300);
@@ -44,6 +47,7 @@ d3.chart("BaseCandlestickChart", {
       right: 60
     };
   },
+
 
   width: function(newWidth) {
     if (!arguments.length) {
@@ -65,8 +69,10 @@ d3.chart("BaseCandlestickChart", {
     return this;
   },
 
-  transform: function(data) {
-    data = data.data;
+  transform: function(_data) {
+    var data;
+    // If ema data was passed in, merge it into each data point
+    data = this.extractData(_data);
     var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
     var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
     var minY = d3.min(data.map(function(d){ return Number(d.low); }));
@@ -77,6 +83,19 @@ d3.chart("BaseCandlestickChart", {
     this.y.domain([minY - marginY, maxY + marginY])
       .range([this.height(), 0]);
     return data;
+  },
+
+  extractData: function(_data){
+    var data;
+    data = _data.data;
+    if(_data.ema){
+      data.forEach(function(datum, i){
+        if(_data.ema[i]){
+          datum.ema = _data.ema[i].price;
+        }
+      });
+    }
+    return data
   },
 
   addGrid: function(chart) {
@@ -311,6 +330,90 @@ d3.chart("BaseCandlestickChart", {
     this.layer("wicks").on("enter:transition", onWicksEnterTrans);
     this.layer("wicks").on("update:transition", onWicksTrans);
     this.layer("wicks").on("exit:transition", onWicksExitTrans);
+  },
+
+  addEma: function(chart) {
+    var line = d3.svg.line()
+      .x(function(d, i){
+        return chart.x(chart.timestamp(d.open_time));
+      })
+      .y(function(d, i){
+        if(d.ema){
+          return chart.y(d.ema);
+        } else {
+          return chart.y(0);
+        }
+      });
+
+    function onEmaEnter(){
+      var lastDatum, oldLastDatum;
+      this.attr('class', 'ema')
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaEnterTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        });
+    }
+
+    function onEmaExitTrans() {
+      var lastDatum, oldLastDatum;
+      this.duration(1000)
+        .attr("d", function(d, i){
+          if(lastDatum){
+            oldLastDatum = lastDatum;
+            lastDatum = d;
+            return line([oldLastDatum, d]);
+          }
+          lastDatum = d;
+        }).remove();
+    }
+
+    function emaDataBind(data){
+      return this.selectAll("path.ema")
+        .data(data, function(d) { return d.open_time });
+    }
+
+    function emaInsert() {
+      return this.insert('path');
+    }
+
+    this.layer("ema", chart.base.append("g").attr("class", "ema"), {
+      dataBind: emaDataBind,
+      insert: emaInsert
+    });
+    this.layer("ema").on("enter", onEmaEnter);
+    this.layer("ema").on("enter:transition", onEmaEnterTrans);
+    this.layer("ema").on("update:transition", onEmaTrans);
+    this.layer("ema").on("exit:transition", onEmaExitTrans);
   },
 
   addOpenLines: function(chart) {

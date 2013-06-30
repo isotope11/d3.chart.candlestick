@@ -81,7 +81,11 @@
 			throw new Error('Invalid selection defined by `dataBind` method.');
 		}
 
-		entering = bound.enter();
+    if(typeof bound.enter === 'function'){
+      entering = bound.enter();
+    } else {
+      entering = bound;
+    }
 		entering._chart = this._base._chart;
 
 		events = [
@@ -103,7 +107,7 @@
 			},
 			{
 				name: 'exit',
-				selection: bound.exit.bind(bound)
+				selection: function(){ if(typeof bound.exit === 'function'){ return bound.exit.bind(bound); } }()
 			}
 		];
 
@@ -117,10 +121,12 @@
 				selection = selection();
 			}
 
-			if (!(selection instanceof d3.selection)) {
-				throw new Error('Invalid selection defined for "' + eventName +
-					"' lifecycle event.");
-			}
+      if(selection){
+        if (!(selection instanceof d3.selection)) {
+          throw new Error('Invalid selection defined for "' + eventName +
+            "' lifecycle event.");
+        }
+      }
 
 			handlers = this._handlers[eventName];
 

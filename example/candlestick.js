@@ -16,7 +16,7 @@
     $('br.clear').remove();
     d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("CandlestickChart", { exchange: 'BTC-E' });
+    var myCandlestickChart = candleCanvas.chart("CandlestickChart", { exchange: 'BTC-E', ema: true });
     var myVolumeChart = volumeCanvas.chart("VolumeChart");
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);
