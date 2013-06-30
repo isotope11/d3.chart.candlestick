@@ -75,7 +75,6 @@ d3.chart("BaseCandlestickChart", {
 
   transform: function(_data) {
     var data;
-    // If ema data was passed in, merge it into each data point
     data = this.extractData(_data);
     var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
     var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
@@ -92,6 +91,7 @@ d3.chart("BaseCandlestickChart", {
   extractData: function(_data){
     var data;
     data = _data.data;
+    // If ema data was passed in, merge it into each data point
     if(_data.ema){
       data.forEach(function(datum, i){
         if(_data.ema[i]){
@@ -402,8 +402,14 @@ d3.chart("BaseCandlestickChart", {
     }
 
     function emaDataBind(data){
+      var newData = [];
+      data.forEach(function(datum){
+        if(datum.ema){
+          newData.push(datum);
+        }
+      });
       return this.selectAll("path.ema")
-        .data(data, function(d) { return d.open_time; });
+        .data(newData, function(d) { return d.open_time; });
     }
 
     function emaInsert() {
