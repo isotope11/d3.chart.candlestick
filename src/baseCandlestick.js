@@ -338,7 +338,7 @@ d3.chart("BaseCandlestickChart", {
     // currently supported lines: ['ema', 'bb'] 
     if(typeof lines !== 'undefined' && lines.length > 0) {
       lines.forEach(function(lineType) {
-        this.addLine(lineType, chart);
+        chart.addLine(lineType, chart);
       });
     }
   },
