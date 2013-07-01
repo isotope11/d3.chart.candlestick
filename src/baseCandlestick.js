@@ -88,7 +88,7 @@ d3.chart("BaseCandlestickChart", {
     var data;
     data = _data.data;
     // If ema data was passed in, merge it into each data point
-    this.lines.forEach(lineType) {
+    this.lines.forEach(function(lineType) {
       if(_data[lineType]){
         data.forEach(function(datum, i){
           if(_data[lineType][i]){
@@ -96,7 +96,7 @@ d3.chart("BaseCandlestickChart", {
           }
         });
       }
-    }
+    });
     return data;
   },
 
@@ -337,9 +337,9 @@ d3.chart("BaseCandlestickChart", {
   addLines: function(chart, lines) {
     // currently supported lines: ['ema', 'bb'] 
     if(typeof lines !== 'undefined' && lines.length > 0) {
-      lines.forEach(lineType) {
+      lines.forEach(function(lineType) {
         this.addLine(lineType, chart);
-      }
+      });
     }
   },
 
