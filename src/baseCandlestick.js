@@ -19,7 +19,7 @@ d3.chart("BaseCandlestickChart", {
     options = options || {};
 
     this.exchange = (options.exchange || '');
-    this.ema = (options.ema || false); // Should we draw ema line?
+    this.lines = (options.lines || []);
 
     var chart = this;
     this.x = d3.scale.linear();
@@ -33,7 +33,7 @@ d3.chart("BaseCandlestickChart", {
     this.addBars(chart);
     this.addLastTrade(chart);
     this.addInfo(chart);
-    this.addEma(chart);
+    this.addLines(chart, this.lines);
 
     this.width(options.width || 900);
     this.height(options.height || 300);
@@ -330,6 +330,28 @@ d3.chart("BaseCandlestickChart", {
     this.layer("wicks").on("enter:transition", onWicksEnterTrans);
     this.layer("wicks").on("update:transition", onWicksTrans);
     this.layer("wicks").on("exit:transition", onWicksExitTrans);
+  },
+
+  addLines: function(chart, lines) {
+    // currently supported lines: ['ema', 'bb'] 
+    if(typeof lines !== 'undefined' && lines.length > 0) {
+      lines.forEach(line) {
+        switch(line.toLowerCase()) {
+          case "ema":
+            this.addEma(chart);
+            break;
+          case "bb":
+            this.addBb(chart);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  },
+
+  addBb: function(chart) {
+    // stub for adding Bolinger Band support to the chart
   },
 
   addEma: function(chart) {
