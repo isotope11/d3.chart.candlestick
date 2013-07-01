@@ -1,6 +1,6 @@
 /*! d3.chart.candlestick - v0.0.3
  *  License: MIT Expat
- *  Date: 2013-06-30
+ *  Date: 2013-07-01
  */
 d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
@@ -23,7 +23,7 @@ d3.chart("BaseCandlestickChart", {
     options = options || {};
 
     this.exchange = (options.exchange || '');
-    this.ema = (options.ema || false); // Should we draw ema line?
+    this.lines = (options.lines || []);
 
     var chart = this;
     this.x = d3.scale.linear();
@@ -36,8 +36,8 @@ d3.chart("BaseCandlestickChart", {
     this.addOpenLines(chart);
     this.addBars(chart);
     this.addLastTrade(chart);
+    this.addLines(chart, this.lines);
     this.addInfo(chart);
-    this.addEma(chart);
 
     this.width(options.width || 900);
     this.height(options.height || 300);
@@ -92,13 +92,15 @@ d3.chart("BaseCandlestickChart", {
     var data;
     data = _data.data;
     // If ema data was passed in, merge it into each data point
-    if(_data.ema){
-      data.forEach(function(datum, i){
-        if(_data.ema[i]){
-          datum.ema = _data.ema[i].price;
-        }
-      });
-    }
+    this.lines.forEach(function(lineType) {
+      if(_data[lineType]){
+        data.forEach(function(datum, i){
+          if(_data[lineType][i]){
+            datum[lineType] = _data[lineType][i].price;
+          }
+        });
+      }
+    });
     return data;
   },
 
@@ -336,14 +338,23 @@ d3.chart("BaseCandlestickChart", {
     this.layer("wicks").on("exit:transition", onWicksExitTrans);
   },
 
-  addEma: function(chart) {
+  addLines: function(chart, lines) {
+    // currently supported lines: ['ema', 'bb'] 
+    if(typeof lines !== 'undefined' && lines.length > 0) {
+      lines.forEach(function(lineType) {
+        this.addLine(lineType, chart);
+      });
+    }
+  },
+
+  addLine: function(lineType, chart) {
     var line = d3.svg.line()
       .x(function(d, i){
         return chart.x(chart.timestamp(d.open_time));
       })
       .y(function(d, i){
-        if(d.ema){
-          return chart.y(d.ema);
+        if(d[lineType]){
+          return chart.y(d[lineType]);
         } else {
           return chart.y(0);
         }
@@ -351,7 +362,7 @@ d3.chart("BaseCandlestickChart", {
 
     function onEmaEnter(){
       var lastDatum, oldLastDatum;
-      this.attr('class', 'ema')
+      this.attr('class', lineType)
         .attr("d", function(d, i){
           if(lastDatum){
             oldLastDatum = lastDatum;
@@ -404,11 +415,11 @@ d3.chart("BaseCandlestickChart", {
     function emaDataBind(data){
       var newData = [];
       data.forEach(function(datum){
-        if(datum.ema){
+        if(datum[lineType]){
           newData.push(datum);
         }
       });
-      return this.selectAll("path.ema")
+      return this.selectAll("path." + lineType)
         .data(newData, function(d) { return d.open_time; });
     }
 
@@ -416,14 +427,14 @@ d3.chart("BaseCandlestickChart", {
       return this.insert('path');
     }
 
-    this.layer("ema", chart.base.append("g").attr("class", "ema"), {
+    this.layer(lineType, chart.base.append("g").attr("class", lineType), {
       dataBind: emaDataBind,
       insert: emaInsert
     });
-    this.layer("ema").on("enter", onEmaEnter);
-    this.layer("ema").on("enter:transition", onEmaEnterTrans);
-    this.layer("ema").on("update:transition", onEmaTrans);
-    this.layer("ema").on("exit:transition", onEmaExitTrans);
+    this.layer(lineType).on("enter", onEmaEnter);
+    this.layer(lineType).on("enter:transition", onEmaEnterTrans);
+    this.layer(lineType).on("update:transition", onEmaTrans);
+    this.layer(lineType).on("exit:transition", onEmaExitTrans);
   },
 
   addOpenLines: function(chart) {
@@ -595,6 +606,7 @@ d3.chart("BaseCandlestickChart", {
       if(el){
         var openDate = new Date(el.open_time);
         chart.layer('info').select('tspan.date').text(openDate.toLocaleString());
+
         [
           ["Open", el.open],
           ["High", el.high],
