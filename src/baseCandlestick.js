@@ -32,8 +32,8 @@ d3.chart("BaseCandlestickChart", {
     this.addOpenLines(chart);
     this.addBars(chart);
     this.addLastTrade(chart);
-    this.addInfo(chart);
     this.addLines(chart, this.lines);
+    this.addInfo(chart);
 
     this.width(options.width || 900);
     this.height(options.height || 300);
@@ -88,12 +88,14 @@ d3.chart("BaseCandlestickChart", {
     var data;
     data = _data.data;
     // If ema data was passed in, merge it into each data point
-    if(_data.ema){
-      data.forEach(function(datum, i){
-        if(_data.ema[i]){
-          datum.ema = _data.ema[i].price;
-        }
-      });
+    this.lines.forEach(lineType) {
+      if(_data[lineType]){
+        data.forEach(function(datum, i){
+          if(_data[lineType][i]){
+            datum[lineType] = _data[lineType][i].price;
+          }
+        });
+      }
     }
     return data;
   },
@@ -335,33 +337,20 @@ d3.chart("BaseCandlestickChart", {
   addLines: function(chart, lines) {
     // currently supported lines: ['ema', 'bb'] 
     if(typeof lines !== 'undefined' && lines.length > 0) {
-      lines.forEach(line) {
-        switch(line.toLowerCase()) {
-          case "ema":
-            this.addEma(chart);
-            break;
-          case "bb":
-            this.addBb(chart);
-            break;
-          default:
-            break;
-        }
+      lines.forEach(lineType) {
+        this.addLine(lineType, chart);
       }
     }
   },
 
-  addBb: function(chart) {
-    // stub for adding Bolinger Band support to the chart
-  },
-
-  addEma: function(chart) {
+  addLine: function(lineType, chart) {
     var line = d3.svg.line()
       .x(function(d, i){
         return chart.x(chart.timestamp(d.open_time));
       })
       .y(function(d, i){
-        if(d.ema){
-          return chart.y(d.ema);
+        if(d[lineType]){
+          return chart.y(d[lineType]);
         } else {
           return chart.y(0);
         }
@@ -369,7 +358,7 @@ d3.chart("BaseCandlestickChart", {
 
     function onEmaEnter(){
       var lastDatum, oldLastDatum;
-      this.attr('class', 'ema')
+      this.attr('class', lineType)
         .attr("d", function(d, i){
           if(lastDatum){
             oldLastDatum = lastDatum;
@@ -422,11 +411,11 @@ d3.chart("BaseCandlestickChart", {
     function emaDataBind(data){
       var newData = [];
       data.forEach(function(datum){
-        if(datum.ema){
+        if(datum[lineType]){
           newData.push(datum);
         }
       });
-      return this.selectAll("path.ema")
+      return this.selectAll("path." + lineType)
         .data(newData, function(d) { return d.open_time; });
     }
 
@@ -434,14 +423,14 @@ d3.chart("BaseCandlestickChart", {
       return this.insert('path');
     }
 
-    this.layer("ema", chart.base.append("g").attr("class", "ema"), {
+    this.layer(lineType, chart.base.append("g").attr("class", lineType), {
       dataBind: emaDataBind,
       insert: emaInsert
     });
-    this.layer("ema").on("enter", onEmaEnter);
-    this.layer("ema").on("enter:transition", onEmaEnterTrans);
-    this.layer("ema").on("update:transition", onEmaTrans);
-    this.layer("ema").on("exit:transition", onEmaExitTrans);
+    this.layer(lineType).on("enter", onEmaEnter);
+    this.layer(lineType).on("enter:transition", onEmaEnterTrans);
+    this.layer(lineType).on("update:transition", onEmaTrans);
+    this.layer(lineType).on("exit:transition", onEmaExitTrans);
   },
 
   addOpenLines: function(chart) {
@@ -613,6 +602,7 @@ d3.chart("BaseCandlestickChart", {
       if(el){
         var openDate = new Date(el.open_time);
         chart.layer('info').select('tspan.date').text(openDate.toLocaleString());
+
         [
           ["Open", el.open],
           ["High", el.high],
