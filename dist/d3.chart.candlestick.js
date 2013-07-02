@@ -1,6 +1,6 @@
 /*! d3.chart.candlestick - v0.0.3
  *  License: MIT Expat
- *  Date: 2013-07-01
+ *  Date: 2013-07-02
  */
 d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
@@ -340,9 +340,10 @@ d3.chart("BaseCandlestickChart", {
 
   addLines: function(chart, lines) {
     // currently supported lines: ['ema', 'bb'] 
+    var that = this;
     if(typeof lines !== 'undefined' && lines.length > 0) {
       lines.forEach(function(lineType) {
-        this.addLine(lineType, chart);
+        that.addLine(lineType, chart);
       });
     }
   },
@@ -511,6 +512,23 @@ d3.chart("BaseCandlestickChart", {
       var textBoxHeight = 115;
       var lineHeight = 15;
       var textMargin = 6;
+      
+      // Add crosshairs
+      chart.layer("info")
+        .append("line")
+        .attr("class", "info line-x")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0)
+        .attr("y2", 0);
+      chart.layer("info")
+        .append("line")
+        .attr("class", "info line-y")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0)
+        .attr("y2", 0);
+
       chart.layer("info")
         .append("rect")
         .attr("class", "info")
@@ -549,35 +567,19 @@ d3.chart("BaseCandlestickChart", {
         ["Close", ''],
         ["Vol", '']
       ].forEach(function(d){
-         textBox.append('tspan')
-           .attr('class', 'titled-title ' + d[0].toLowerCase())
-           .attr("x", textMargin)
-           .attr("y", y)
-           .text(d[0] + ':');
-         textBox.append('tspan')
-           .attr('class', 'titled-data ' + d[0].toLowerCase())
-           .attr('dx', 0)
-           .text(' ' + d[1]);
-         y = y + lineHeight;
-       });
+        textBox.append('tspan')
+          .attr('class', 'titled-title ' + d[0].toLowerCase())
+          .attr("x", textMargin)
+          .attr("y", y)
+          .text(d[0] + ':');
+        textBox.append('tspan')
+          .attr('class', 'titled-data ' + d[0].toLowerCase())
+          .attr('dx', 0)
+          .text(' ' + d[1]);
+        y = y + lineHeight;
+      });
 
-        // Add crosshairs
-        chart.layer("info")
-          .append("line")
-          .attr("class", "info line-x")
-          .attr("x1", 0)
-          .attr("x2", 0)
-          .attr("y1", 0)
-          .attr("y2", 0);
-        chart.layer("info")
-          .append("line")
-          .attr("class", "info line-y")
-          .attr("x1", 0)
-          .attr("x2", 0)
-          .attr("y1", 0)
-          .attr("y2", 0);
-
-        chart.layer('info').style('display', 'none');
+      chart.layer('info').style('display', 'none');
     };
 
     addInfoBoxes();
