@@ -33,7 +33,7 @@
     $('br.clear').remove();
     d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("OHLCChart", { exchange: 'Mt. Gox', lines: ['ema']});
+    var myCandlestickChart = candleCanvas.chart("OHLCChart", { exchange: 'Mt. Gox', lines: ['ema', 'bb']});
     var myVolumeChart = volumeCanvas.chart("VolumeChart");
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);

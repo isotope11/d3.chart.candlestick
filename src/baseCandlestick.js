@@ -339,7 +339,7 @@ d3.chart("BaseCandlestickChart", {
     var that = this;
     if(typeof lines !== 'undefined' && lines.length > 0) {
       lines.forEach(function(lineType) {
-        that.addLine(lineType, chart);
+        chart.addLine(lineType, chart);
       });
     }
   },
