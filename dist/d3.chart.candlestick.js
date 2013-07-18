@@ -1,6 +1,6 @@
 /*! d3.chart.candlestick - v0.0.3
  *  License: MIT Expat
- *  Date: 2013-07-02
+ *  Date: 2013-07-18
  */
 d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
@@ -343,7 +343,7 @@ d3.chart("BaseCandlestickChart", {
     var that = this;
     if(typeof lines !== 'undefined' && lines.length > 0) {
       lines.forEach(function(lineType) {
-        that.addLine(lineType, chart);
+        chart.addLine(lineType, chart);
       });
     }
   },
@@ -624,10 +624,16 @@ d3.chart("BaseCandlestickChart", {
       }
     });
 
-    this.base.on('mouseout', function(){
+    this.base.on('mouseout', function(evt){
       var bbox = chart.base[0][0].getBBox();
-      var outsideX = event.x < bbox.x || event.x > (bbox.x + bbox.width);
-      var outsideY = event.y < bbox.y || event.y > (bbox.y + bbox.height);
+      var eventX, eventY;
+
+      var mouseX = d3.mouse(this)[0];
+      var mouseY = d3.mouse(this)[1];
+      eventX = (typeof event !== 'undefined') ? event.x : mouseX;
+      eventY = (typeof event !== 'undefined') ? event.y : mouseY;
+      var outsideX = eventX < bbox.x || eventX > (bbox.x + bbox.width);
+      var outsideY = eventY < bbox.y || eventY > (bbox.y + bbox.height);
       if(outsideY || outsideX){
         chart.layer('info').style('display', 'none');
       }
