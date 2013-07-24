@@ -3,8 +3,7 @@ d3.chart("VolumeChart", {
     return new Date(dateString).getTime() / 1000;
   },
   widthForBar: function(length) {
-    var allowedGaps = length/10;
-    return ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
+    return ((this.width() - this.margin.right) / length) - (2*this.strokeWidth) - (this.candleMargin);
   },
   heightForBar: function(y, candle) {
     var coreHeight = y(candle.volume);
@@ -25,7 +24,7 @@ d3.chart("VolumeChart", {
     this.width(options.width || 900);
     this.height(options.height || 100);
 
-    this.strokeWidth = 1;
+    this.strokeWidth = options.strokeWidth || 1;
     this.candleMargin = 1;
     this.margin = {
       top: 0,

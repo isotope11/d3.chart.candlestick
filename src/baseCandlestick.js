@@ -3,8 +3,7 @@ d3.chart("BaseCandlestickChart", {
     return new Date(dateString).getTime() / 1000;
   },
   widthForCandle: function(length) {
-    var allowedGaps = length/10;
-    var width = ((this.width() - this.margin.right) / (length + allowedGaps)) - (2*this.strokeWidth) - (this.candleMargin);
+    var width = ((this.width() - this.margin.right) / (length)) - (2*this.strokeWidth) - (this.candleMargin);
     return width;
   },
   heightForCandle: function(y, candle) {
@@ -38,7 +37,7 @@ d3.chart("BaseCandlestickChart", {
     this.width(options.width || 900);
     this.height(options.height || 300);
 
-    this.strokeWidth = 1;
+    this.strokeWidth = options.strokeWidth || 1;
     this.candleMargin = 1;
     this.margin = {
       top: 0,
