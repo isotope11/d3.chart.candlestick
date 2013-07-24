@@ -234,7 +234,7 @@ d3.chart("BaseCandlestickChart", {
 
   addLastTradeSlab: function(chart) {
     var rectWidth = 48;
-    var rectWidthOffset = rectWidth * .25;
+    var rectWidthOffset = rectWidth * 0.25;
     var rectHeight = 19;
     var rectHeightOffset = rectHeight/2 - 1;
     function onLastTradeEnter() {
