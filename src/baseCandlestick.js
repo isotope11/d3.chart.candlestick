@@ -185,6 +185,7 @@ d3.chart("BaseCandlestickChart", {
 
   addLastTrade: function(chart) {
     this.addLastTradeLine(chart);
+    this.addLastTradeSlab(chart);
     this.addLastTradeLabel(chart);
   },
 
@@ -229,6 +230,54 @@ d3.chart("BaseCandlestickChart", {
     this.layer("last-trade").on("update", onLastTradeUpdate);
     this.layer("last-trade").on("update:transition", onLastTradeTrans);
     this.layer("last-trade").on("exit:transition", onLastTradeExitTrans);
+  },
+
+  addLastTradeSlab: function(chart) {
+    var rectWidth = 48;
+    var rectWidthOffset = rectWidth * .25;
+    var rectHeight = 19;
+    var rectHeightOffset = rectHeight/2 - 1;
+    function onLastTradeEnter() {
+      this.attr('class', 'last-trade-slab')
+          .classed('fall', function(d){ return Number(d.open) > Number(d.close); })
+          .attr("x", chart.width() - chart.margin.right + rectWidthOffset)
+          .attr("y", function(d){ return chart.y(Number(d.close)) - rectHeightOffset; })
+          .attr("rx", 3)
+          .attr("ry", 3)
+          .attr('width', rectWidth)
+          .attr('height', rectHeight);
+    }
+
+    function onLastTradeUpdate() {
+      this.classed('fall', function(d){ return Number(d.open) > Number(d.close); });
+    }
+
+    function onLastTradeTrans() {
+      this.duration(1000)
+          .attr("y", function(d){ return chart.y(Number(d.close)) - rectHeightOffset; });
+    }
+
+    function onLastTradeExitTrans() {
+      this.remove();
+    }
+
+    function lastTradeDataBind(data) {
+      return this.selectAll("rect.last-trade-slab")
+        .data([data[data.length - 1]], function(d) { return d.open_time; });
+    }
+
+    function lastTradeInsert() {
+      return this.insert("rect");
+    }
+
+    this.layer("last-trade-slab", this.base.append("g").attr("class", "last-trade-slab"), {
+      dataBind: lastTradeDataBind,
+      insert: lastTradeInsert
+    });
+    this.layer("last-trade-slab").on("enter", onLastTradeEnter);
+    this.layer("last-trade-slab").on("update", onLastTradeUpdate);
+    this.layer("last-trade-slab").on("update:transition", onLastTradeTrans);
+    this.layer("last-trade-slab").on("exit:transition", onLastTradeExitTrans);
   },
 
   addLastTradeLabel: function(chart) {

@@ -5,7 +5,7 @@
 		<title>D3.chart Boilerplate Example</title>
 		<script src="lib/d3.v3.js"></script>
     <script src="lib/d3.chart.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
     <script src="../src/baseCandlestick.js"></script>
     <script src="../src/ohlc.js"></script>
@@ -55,16 +55,19 @@
         font-style: normal;
         font-size: 12px;
       }
+      rect.last-trade-slab {
+        fill:green;
+      }
+      rect.last-trade-slab.fall {
+        fill:red;
+      }
 
       text.last-trade-label{
-        fill: green;
+        fill: white;
         font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
-      }
-      text.last-trade-label.fall{
-        fill: red;
       }
 
       rect.info{
