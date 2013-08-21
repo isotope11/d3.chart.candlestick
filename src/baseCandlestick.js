@@ -552,11 +552,11 @@ d3.chart("BaseCandlestickChart", {
     }).left;
 
     var addInfoBoxes = function(){
-      var textBoxWidth = 150;
+      var textBoxWidth = 200;
       var textBoxHeight = 115;
       var lineHeight = 15;
       var textMargin = 6;
-      
+
       // Add crosshairs
       chart.layer("info")
         .append("line")

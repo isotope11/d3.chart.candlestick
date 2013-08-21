@@ -1,6 +1,6 @@
 /*! d3.chart.candlestick - v0.0.3
  *  License: MIT Expat
- *  Date: 2013-07-24
+ *  Date: 2013-08-21
  */
 d3.chart("BaseCandlestickChart", {
   timestamp: function(dateString) {
@@ -556,11 +556,11 @@ d3.chart("BaseCandlestickChart", {
     }).left;
 
     var addInfoBoxes = function(){
-      var textBoxWidth = 150;
+      var textBoxWidth = 200;
       var textBoxHeight = 115;
       var lineHeight = 15;
       var textMargin = 6;
-      
+
       // Add crosshairs
       chart.layer("info")
         .append("line")
