@@ -1,6 +1,6 @@
 # d3.chart.candlestick
 
-A candlestick chart for d3.chart.
+A candlestick chart for d3.chart.  See [an example here](http://isotope11.github.io/d3.chart.candlestick/example/index.html)
 
 ### Sample Use
 
