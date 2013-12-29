@@ -16,8 +16,8 @@
     $('br.clear').remove();
     d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("CandlestickChart", { exchange: 'BTC-E', lines: ['ema', 'bb']});
-    var myVolumeChart = volumeCanvas.chart("VolumeChart");
+    var myCandlestickChart = candleCanvas.chart("CandlestickChart", { exchange: 'BTC-E', lines: ['ema', 'bb'], period: 60 });
+    var myVolumeChart = volumeCanvas.chart("VolumeChart", { period: 60 });
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);
     window.i = setInterval(function() {
@@ -33,8 +33,8 @@
     $('br.clear').remove();
     d3.select("body").append('br').attr('class', 'clear');
     var volumeCanvas = d3.select("body").append('svg');
-    var myCandlestickChart = candleCanvas.chart("OHLCChart", { exchange: 'Mt. Gox', lines: ['ema', 'bb']});
-    var myVolumeChart = volumeCanvas.chart("VolumeChart");
+    var myCandlestickChart = candleCanvas.chart("OHLCChart", { exchange: 'Mt. Gox', lines: ['ema', 'bb'], period: 60 });
+    var myVolumeChart = volumeCanvas.chart("VolumeChart", { period: 60 });
     myCandlestickChart.draw(dataSrc);
     myVolumeChart.draw(dataSrc);
     window.i = setInterval(function() {

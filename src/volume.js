@@ -13,6 +13,8 @@ d3.chart("VolumeChart", {
   initialize: function(options) {
     options = options || {};
 
+    this.period = (options.period || 0);
+
     var chart = this;
     this.x = d3.scale.linear();
     this.y = d3.scale.linear();
@@ -57,7 +59,7 @@ d3.chart("VolumeChart", {
   transform: function(data) {
     data = data.data;
     var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
-    var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
+    var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; })) + this.period;
     var minY = d3.min(data.map(function(d){ return Number(d.volume); }));
     var maxY = d3.max(data.map(function(d){ return Number(d.volume); }));
     var marginY = (maxY - minY) * 0.4;

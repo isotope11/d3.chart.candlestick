@@ -19,6 +19,7 @@ d3.chart("BaseCandlestickChart", {
 
     this.exchange = (options.exchange || '');
     this.lines = (options.lines || []);
+    this.period = (options.period || 0);
 
     var chart = this;
     this.x = d3.scale.linear();
@@ -72,7 +73,7 @@ d3.chart("BaseCandlestickChart", {
     var data;
     data = this.extractData(_data);
     var minX = d3.min(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
-    var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; }));
+    var maxX = d3.max(data.map(function(d){ return new Date(d.open_time).getTime() / 1000; })) + this.period;
     var minY = d3.min(data.map(function(d){ return Number(d.low); }));
     var maxY = d3.max(data.map(function(d){ return Number(d.high); }));
     var marginY = (maxY - minY) * 0.4;
@@ -634,7 +635,7 @@ d3.chart("BaseCandlestickChart", {
       var mouseY = d3.mouse(this)[1];
       var x0 = chart.x.invert(mouseX);
       var data = chart.getBarData(chart);
-      var i = bisectDate(data, x0, 1);
+      var i = bisectDate(data, x0, 1) - 1;
       var el = data[i];
 
       // Add crosshairs
